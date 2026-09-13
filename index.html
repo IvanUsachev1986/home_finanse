@@ -1,0 +1,2465 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="manifest.json" />
+  <title>My finance</title>
+
+  <style>
+    .ios-list-title {
+      text-align: center;
+      color: #000;
+      font-size: large;
+
+    }
+
+    :root {
+      --ios-bg: #f2f2f7;
+      --ios-blue: #007aff;
+      --ios-blue-active: #0051a8;
+      --ios-gray: #e5e5ea;
+      --text-main: #1c1c1e;
+      --text-muted: #8e8e93;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ios-bg: #000000;
+        --ios-gray: #1c1c1e;
+        --text-main: #ffffff;
+        --text-muted: #ebebf599;
+      }
+
+      .ios-form {
+        background: #1c1c1e !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+      }
+
+      .ios-form .accordion-header {
+        background: var(--ios-bg);
+        border: 1px solid #d1d1d6;
+      }
+
+      /* Оформление полей ввода цен */
+      .ios-list-item input[type="number"]:focus {
+        outline: none;
+        color: var(--ios-blue-active);
+      }
+
+
+
+      .toggle-wrapper {
+        background: #2c2c2e !important;
+        border-color: #38383a !important;
+      }
+
+      input,
+      select,
+      textarea,
+      output {
+        background: #2c2c2e !important;
+        color: white !important;
+        border-color: #38383a !important;
+      }
+
+      nav {
+        background: rgba(28, 28, 30, 0.92) !important;
+        border-top-color: #38383a !important;
+      }
+
+      .nav-btn.active>.nav-icon {
+        stroke: var(--ios-blue) !important;
+      }
+
+      .breakdown-bar-bg {
+        background: #2c2c2e !important;
+      }
+
+      .top-header {
+        background: rgba(28, 28, 30, 0.92) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--ios-bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -webkit-touch-callout: none;
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+
+    /* --- ВЕРХНЕЕ МЕНЮ --- */
+    /* --- ВЕРХНЕЕ МЕНЮ (10% - 80% - 10%) --- */
+    .top-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 85px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 0 0 20px 20px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: env(safe-area-inset-top);
+      box-sizing: border-box;
+    }
+
+    .header-block {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .block-side {
+      width: 15%;
+      justify-content: center;
+      position: relative;
+    }
+
+    .block-center {
+      width: 70%;
+      justify-content: center;
+    }
+
+    .header-btn {
+      background: transparent;
+      border: none;
+      color: var(--ios-blue);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      transition: opacity 0.2s;
+    }
+
+    .header-btn:active {
+      opacity: 0.5;
+    }
+
+    .header-title-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.3px;
+    }
+
+    .action-icon {
+      width: 26px;
+      height: 26px;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* --- ВЫПАДАЮЩЕЕ МЕНЮ --- */
+    .dropdown-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 998;
+    }
+
+    .dropdown-overlay.active {
+      display: block;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 60px;
+      right: 15px;
+      width: 200px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transform: scale(0.95) translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #000;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:active {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .dropdown-item .icon {
+      width: 22px;
+      height: 22px;
+      stroke: var(--text-main);
+    }
+
+    .dropdown-item.active-item .icon {
+      stroke: var(--ios-blue);
+    }
+
+    .dropdown-item.active-item {
+      color: var(--ios-blue);
+    }
+
+    /* Лоадер */
+    #global-loader {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(5px);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    #global-loader.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--ios-gray);
+      border-top: 4px solid var(--ios-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    /* Секции */
+    .section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 0 15px;
+    }
+
+    .section.active {
+      display: block;
+      opacity: 1;
+      animation: fadeIn 0.4s ease;
+    }
+
+    h2 {
+      display: none;
+    }
+
+    /* Скрыто, так как есть заголовок в шапке */
+
+    /* Формы */
+    .ios-form {
+      max-width: 500px;
+      margin: 0 auto 20px;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-left: 4px;
+    }
+
+    /* Стили для кастомных чекбоксов направлений */
+    .dir-label {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .dir-label input {
+      display: none;
+    }
+
+    .dir-icon {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      opacity: 0.4;
+      transition: all 0.3s ease;
+    }
+
+    .dir-label input:checked+.dir-icon,
+    .dir-label input:checked+span {
+      fill: #ff2d55;
+      color: #ff2d55;
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .dir-label:has(input:checked) {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    select,
+    input,
+    textarea,
+    output {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 1px solid #d1d1d6;
+      border-radius: 12px;
+      background-color: #f9f9f9;
+      color: var(--text-main);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--ios-blue);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .section_train {
+      display: none;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px dashed #e5e5ea;
+    }
+
+    .section_train.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .stepper-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .stepper-container input {
+      text-align: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .stepper-btn {
+      width: 54px;
+      height: 54px;
+      background: var(--ios-gray);
+      border: none;
+      border-radius: 14px;
+      color: var(--ios-blue);
+      font-size: 26px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .stepper-btn:active {
+      background: #d1d1d6;
+      transform: scale(0.95);
+    }
+
+    .apple-button {
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: var(--ios-blue);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .apple-button:active {
+      background-color: var(--ios-blue-active);
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+    }
+
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: #f9f9f9;
+      border-radius: 14px;
+      border: 1px solid #d1d1d6;
+    }
+
+    .toggle-label-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 51px;
+      height: 31px;
+      margin: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e5e5ea;
+      transition: .3s;
+      border-radius: 31px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 27px;
+      width: 27px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch input:checked+.toggle-slider {
+      background-color: #34c759;
+    }
+
+    .toggle-switch input:checked+.toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Нижняя навигация */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 85px;
+      display: flex;
+      justify-content: space-around;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 20px 20px 0 0;
+      z-index: 999;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      flex: 1;
+      /* Ровное распределение места, ничего не съезжает */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .nav-icon {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 8px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      /* Пружинистая анимация */
+    }
+
+    .nav-btn span {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .nav-btn.active {
+      color: var(--ios-blue);
+    }
+
+    .nav-btn.active .nav-icon {
+      transform: scale(1.15);
+    }
+
+    #toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(52, 199, 89, 0.95);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      box-shadow: 0 10px 20px rgba(52, 199, 89, 0.3);
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 10001;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Аналитика */
+    .breakdown-container {
+      margin-top: 25px;
+    }
+
+    .breakdown-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      border-top: 1px solid var(--ios-gray);
+      padding-top: 20px;
+      letter-spacing: -0.3px;
+    }
+
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .breakdown-bar-bg {
+      background: var(--ios-gray);
+      height: 8px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .breakdown-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+
+    .fill-green {
+      background: linear-gradient(90deg, #34c759, #30d158);
+      box-shadow: 0 0 8px rgba(52, 199, 89, 0.4);
+    }
+
+    .fill-red {
+      background: linear-gradient(90deg, #ff3b30, #ff453a);
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.4);
+    }
+
+    .fill-blue {
+      background: linear-gradient(90deg, #007aff, #32ade6);
+      box-shadow: 0 0 8px rgba(0, 122, 255, 0.4);
+    }
+
+    .total-highlight {
+      font-size: 1.5em !important;
+      border: none;
+      padding: 0;
+      background: transparent !important;
+    }
+
+    /* --- АККОРДЕОНЫ (РАСКРЫВАЮЩИЕСЯ СПИСКИ) --- */
+    .accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      background: #ffffff;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background 0.2s;
+    }
+
+    .accordion-header:active {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .accordion-icon {
+      width: 22px;
+      height: 22px;
+      stroke: var(--text-muted);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .accordion-header.active .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 0 4px 16px 4px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .accordion-content.active {
+      display: block;
+    }
+
+    /* --- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ --- */
+    .student-modal {
+      position: fixed;
+      inset: 0;
+      background: rgb(255, 253, 253);
+      backdrop-filter: blur(5px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .student-modal.active {
+      display: flex;
+    }
+
+    .student-modal-content {
+      background: var(--menu-bg);
+      width: 100%;
+      max-width: 450px;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    /* Исправление цветов в модалке */
+    .student-modal-content h3 {
+      color: var(--text-main) !important;
+    }
+
+    .student-modal-content label {
+      color: var(--text-muted) !important;
+    }
+
+    /* Кнопки "Отмена" и "Сохранить" одного размера */
+    .modal-buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .modal-buttons-row .apple-button {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    /* Дизайн списка учениц (Аватарки) */
+    .student-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--ios-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--ios-blue);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .student-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .student-name-large {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* iOS Переключатель (Toggle) */
+    .ios-toggle {
+      position: relative;
+      width: 50px;
+      height: 30px;
+      -webkit-appearance: none;
+      background: #e5e5ea;
+      border-radius: 15px;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .ios-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .ios-toggle:checked {
+      background: #34c759;
+    }
+
+    .ios-toggle:checked::after {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ХРАНИЛИЩЕ ИКОНОК (DRY - пишем один раз, используем везде) -->
+  <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+
+      <!-- Иконка: Pole Exotic (Туфля) -->
+      <symbol id="icon-exotic" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M19,8.5 L17.5,8.5 L16.5,18 C16.2,20.5 15,21.5 13.5,21.5 C12.2,21.5 11.5,20.5 12,18.5 L13,14 L10,14 C8,14 6.5,15.5 5,18 L3,18 L3,20 L6.5,20 L10,15.5 L12,21.5 L15,21.5 L16.5,9.5 C15.5,9.5 14,9.5 13.5,9 L13,7 L19,7 L19,8.5 Z">
+        </path>
+      </symbol>
+
+      <!-- Иконка: Stretching (Лотос/Растяжка) -->
+      <symbol id="icon-stretch" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M12,22 C12,22 4,16 4,10 C4,6.5 6.5,4 10,4 C11.5,4 12,5 12,5 C12,5 12.5,4 14,4 C17.5,4 20,6.5 20,10 C20,16 12,22 12,22 Z M12,19 C12,19 17,14 17,10 C17,7.5 15.5,6 14,6 C12.5,6 12,8 12,8 C12,8 11.5,6 10,6 C8.5,6 7,7.5 7,10 C7,14 12,19 12,19 Z">
+        </path>
+      </symbol>
+
+      <!-- Иконка: Блокнот/Запись -->
+      <symbol id="icon-edit" viewBox="0 0 24 24">
+        <path
+          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+        </path>
+      </symbol>
+      <!-- Иконка: График/Шестеренки -->
+      <symbol id="icon-gear" viewBox="0 0 24 24" stroke-width="1.5">
+        <path
+          d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z">
+        </path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </symbol>
+      <!-- Иконка: График/Аналитика -->
+      <symbol id="icon-chart" viewBox="0 0 24 24">
+        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 
+          2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+        </path>
+      </symbol>
+      <!-- Иконка: Стрелочки (Девушка на пилоне) -->
+      <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </symbol>
+
+      <!-- Иконка: Тренировки (Девушка на пилоне) -->
+
+      <symbol id="icon-train" viewBox="0 0 2500 2500">
+        <!-- Добавил transform, чтобы перевернуть иконку обратно -->
+        <g transform="scale(1, -1) translate(0, -2500)">
+          <path style="fill: currentColor; stroke: none;"
+            d="M1610 2431 c0 -37 -3 -41 -54 -70 -69 -38 -237 -198 -285 -271 -21 -30 -59 -95 -86 -144 -53 -99 -84 -131 -132 -141 -37 -7 -53 -29 -53 -76 0 -17 -16 -72 -35 -121 -20 -49 -38 -117 -42 -151 -5 -52 -12 -69 -42 -103 -109 -124 -251 -357 -251 -410 0 -36 12 -48 140 -136 140 -95 211 -136 303 -174 l82 -33 23 -103 c44 -193 69 -250 129 -289 34 -23 43 -24 43 -4 0 8 -4 15 -10 15 -5 0 -10 15 -10 33 0 17 -7 40 -14 50 -9 11 -12 33 -8 62 4 37 2 45 -11 45 -9 0 -24 11 -32 24 -13 19 -15 51 -13 172 3 147 3 150 -25 203 -26 48 -31 77 -49 249 -17 160 -19 201 -9 229 17 47 6 86 -40 139 -21 25 -39 51 -39 58 0 7 41 33 90 58 l90 44 34 -60 c58 -105 84 -160 137 -293 63 -159 104 -237 141 -268 l28 -24 0 -410 c0 -359 2 -411 15 -411 13 0 15 53 15 414 0 266 4 417 10 421 5 3 10 21 10 40 0 19 -4 37 -10 40 -14 9 -14 1261 0 1270 6 3 10 21 10 40 0 19 -4 37 -10 40 -5 3 -10 24 -10 46 0 28 -4 39 -15 39 -11 0 -15 -11 -15 -39z m0 -304 l0 -157 -27 6 c-16 4 -32 13 -36 21 -12 21 -63 43 -98 43 -32 0 -72 -26 -135 -89 -34 -35 -43 -64 -24 -76 14 -8 -6 -35 -26 -35 -26 0 -24 21 9 88 53 106 98 168 204 278 131 137 133 135 133 -79z m0 -647 c0 -274 -4 -430 -10 -430 -5 0 -18 17 -28 38 -17 34 -105 299 -167 502 -15 47 -35 108 -45 135 l-19 50 24 25 c20 20 33 24 70 21 41 -2 49 1 81 33 20 20 39 34 44 31 4 -2 16 2 26 10 10 8 20 15 22 15 1 0 2 -193 2 -430z m-609 -375 c10 -39 41 -137 68 -218 28 -81 53 -164 57 -183 6 -35 6 -36 -15 -24 -12 6 -29 26 -38 45 -18 37 -41 51 -57 35 -5 -5 -16 -10 -23 -10 -19 0 -81 58 -124 116 -21 29 -52 61 -69 71 -17 10 -29 23 -28 29 5 19 192 214 202 211 5 -2 17 -34 27 -72z" />
+        </g>
+      </symbol>
+      <!-- Иконка: Траты (Корзина с продуктами) -->
+      <symbol id="icon-buy" viewBox="0 0 24 24">
+        <path
+          d="m24,4.5c0,.276-.224.5-.5.5h-3.5v3.5c0,.276-.224.5-.5.5s-.5-.224-.5-.5v-3.5h-3.5c-.276,0-.5-.224-.5-.5s.224-.5.5-.5h3.5V.5c0-.276.224-.5.5-.5s.5.224.5.5v3.5h3.5c.276,0,.5.224.5.5Zm-.563,2.51c-.266-.056-.533.121-.588.392l-.757,3.785c-.326,1.63-1.77,2.813-3.432,2.813H5.879l-1.25-9h7.871c.276,0,.5-.224.5-.5s-.224-.5-.5-.5H4.49l-.256-1.843c-.17-1.229-1.234-2.157-2.476-2.157H.5C.224,0,0,.224,0,.5s.224.5.5.5h1.259c.745,0,1.383.556,1.485,1.294l1.781,12.825c.308,2.212,2.225,3.881,4.457,3.881h10.018c.276,0,.5-.224.5-.5s-.224-.5-.5-.5h-10.018c-1.73,0-3.214-1.289-3.462-3h12.64c2.138,0,3.993-1.521,4.412-3.617l.757-3.785c.055-.271-.121-.534-.393-.588Zm-14.437,14.99c0,1.103-.897,2-2,2s-2-.897-2-2,.897-2,2-2,2,.897,2,2Zm-1,0c0-.551-.448-1-1-1s-1,.449-1,1,.448,1,1,1,1-.449,1-1Zm11,0c0,1.103-.897,2-2,2s-2-.897-2-2,.897-2,2-2,2,.897,2,2Zm-1,0c0-.551-.448-1-1-1s-1,.449-1,1,.448,1,1,1,1-.449,1-1Z" />
+      </symbol>
+      <!-- Иконка: Доход (Монетка со знаком доллара) -->
+      <symbol id="icon-income" viewBox="0 0 24 24">
+        <path
+          d="m19.5 4h-1.551c-.252-2.244-2.139-4-4.449-4h-3c-2.31 0-4.197 1.756-4.449 4h-1.551c-2.481 0-4.5 2.019-4.5 4.5v11c0 2.481 2.019 4.5 4.5 4.5h15c2.481 0 4.5-2.019 4.5-4.5v-11c0-2.481-2.019-4.5-4.5-4.5zm-9-3h3c1.76 0 3.221 1.306 3.464 3h-9.928c.243-1.694 1.704-3 3.464-3zm12.5 18.5c0 1.93-1.57 3.5-3.5 3.5h-15c-1.93 0-3.5-1.57-3.5-3.5v-11c0-1.93 1.57-3.5 3.5-3.5h15c1.93 0 3.5 1.57 3.5 3.5zm-7-3.126c0 1.448-1.178 2.626-2.626 2.626h-.874v1.5c0 .276-.224.5-.5.5s-.5-.224-.5-.5v-1.5h-.926c-.979 0-1.891-.526-2.381-1.375-.139-.238-.057-.545.182-.683.239-.141.545-.057.683.183.312.54.894.875 1.516.875h2.8c.896 0 1.626-.729 1.626-1.626 0-.803-.575-1.479-1.368-1.604l-3.423-.552c-1.28-.204-2.209-1.295-2.209-2.592 0-1.448 1.178-2.626 2.626-2.626h.874v-1.5c0-.276.224-.5.5-.5s.5.224.5.5v1.5h.926c.979 0 1.891.526 2.381 1.375.139.238.057.545-.182.683-.241.14-.546.056-.683-.183-.312-.54-.894-.875-1.516-.875h-2.8c-.896 0-1.626.729-1.626 1.626 0 .803.575 1.479 1.368 1.604l3.423.552c1.28.204 2.209 1.295 2.209 2.592z" />
+
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ВЕРХНЕЕ МЕНЮ НАВИГАЦИИ -->
+  <header class="top-header">
+    <div class="header-block block-side"></div> <!-- Пустой левый блок -->
+
+    <div class="header-block block-center">
+      <div id="header-title" class="header-title-text">Запись тренировок</div>
+    </div>
+
+    <div class="header-block block-side">
+      <!-- Иконка, которая открывает меню (меняется динамически) -->
+      <button id="menu-trigger-btn" class="header-btn">
+        <svg class="action-icon" id="current-mode-icon">
+          <use href="#icon-edit"></use>
+        </svg>
+      </button>
+
+      <!-- Выпадающее меню -->
+      <div class="dropdown-menu" id="dropdown-menu">
+        <button class="dropdown-item active-item" data-mode="record">
+          <svg class="action-icon icon">
+            <use href="#icon-edit"></use>
+          </svg> Запись
+        </button>
+        <button class="dropdown-item" data-mode="analytics">
+          <svg class="action-icon icon">
+            <use href="#icon-chart"></use>
+          </svg> Аналитика
+        </button>
+        <button class="dropdown-item" data-mode="elements" data-only="seg-train">
+          <svg class="action-icon icon">
+            <use href="#icon-train"></use>
+          </svg> Элементы
+        </button>
+        <button class="dropdown-item" data-mode="settings">
+          <svg class="action-icon icon">
+            <use href="#icon-gear"></use>
+          </svg> Настройки
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Прозрачный фон для закрытия меню по клику мимо -->
+  <div class="dropdown-overlay" id="dropdown-overlay"></div>
+
+  <div id="global-loader">
+    <div class="spinner"></div>
+    <p style="color: black; font-weight: bold;" id="loader-text">Синхронизация данных...</p>
+  </div>
+
+  <div id="toast">Сохранено</div>
+
+  <main>
+    <!-- СЕКЦИЯ 1: Тренировки (Запись) -->
+    <div id="train" class="section">
+      <form id="contact-form" class="ios-form">
+        <div class="form-group">
+          <label for="names-choice">Имя клиента:</label>
+          <input list="names" id="names-choice" name="name" required placeholder="Начните вводить..."
+            autocomplete="off" />
+          <datalist id="names"></datalist>
+        </div>
+
+        <div class="form-group">
+          <label for="order_type">Категория:</label>
+          <select name="order_types" id="order_type" required>
+            <option value="" selected disabled hidden>Выберите тип...</option>
+            <option value="Абонемент">Абонемент</option>
+            <option value="Индивидуальное занятие" selected>Индивидуальное занятие</option>
+            <option value="Мини-группа">Мини-группа</option>
+            <option value="Пробная тренировка">Пробная тренировка</option>
+            <option value="Групповое на площадке">Групповое на площадке</option>
+          </select>
+        </div>
+
+        <div id="section-Абонемент" class="section_train">
+          <div class="form-group">
+            <label for="sub-select">Выбери тип абонемента:</label>
+            <select name="types" id="sub-select"></select>
+          </div>
+          <div class="form-group">
+            <label>Сумма (₪):</label>
+            <input type="number" id="sum_subscription" />
+          </div>
+        </div>
+
+        <div id="section-Single" class="section_train active">
+          <div class="form-group amount">
+            <label>Количество занятий:</label>
+            <div class="stepper-container">
+              <button type="button" class="stepper-btn minus-btn">−</button>
+              <input type="number" id="qty_single" value="1" min="1" readonly />
+              <button type="button" class="stepper-btn plus-btn">+</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Сумма (₪):</label>
+            <input type="number" id="sum_single" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label for="form_pay-select">Вид оплаты:</label>
+          <select name="form_pay" id="form_pay-select" required>
+            <option value="BIT">BIT</option>
+            <option value="PayBOX">PayBOX</option>
+            <option value="מזומן">מזומן</option>
+            <option value="אחר">אחר</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Комментарий:</label>
+          <textarea name="message" placeholder="Дополнительная информация..."></textarea>
+        </div>
+
+        <div class="toggle-wrapper">
+          <span class="toggle-label-text">Отправить квитанцию клиенту</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="send_receipt" name="send_receipt" value="true" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <input type="hidden" id="data_type_result" name="data_type_result" value="" />
+        <input type="hidden" id="sum_lessons_result" name="sum_lessons_result" value="" />
+        <input type="hidden" id="sum_money_result" name="sum_money_result" value="" />
+
+        <button type="submit" class="apple-button">Отправить данные</button>
+      </form>
+    </div>
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
+<!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
+    <div id="student-modal" class="student-modal">
+      <div class="student-modal-content">
+        <form id="student-form" onsubmit="saveStudentData(event)">
+
+          <!-- Блок Фото: без слов, кликабельно само фото -->
+          <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; margin-top: 10px;">
+            <label for="edit-photo" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+              <div id="modal-avatar-preview" class="student-avatar" style="width: 90px; height: 90px; font-size: 36px; border: 2px solid var(--ios-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">👤</div>
+            </label>
+            <input type="file" id="edit-photo" accept="image/*" style="display: none;" onchange="previewPhoto(event)" />
+          </div>
+
+          <div class="form-group"><label>Имя в системе:</label><input type="text" id="edit-name" required /></div>
+          <div class="form-group"><label>Email:</label><input type="email" id="edit-email" /></div>
+          <div class="form-group"><label>Имя для квитанции:</label><input type="text" id="edit-hebrew-name" /></div>
+          <div class="form-group"><label>Телефон:</label><input type="tel" id="edit-phone" /></div>
+          
+          <!-- Умная форма здоровья: поле + динамическая иконка -->
+          <div class="form-group">
+            <label>Форма здоровья (PDF ссылка):</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="url" id="edit-health" placeholder="Вставьте ссылку..." style="flex: 1;" oninput="updateHealthIcon()" />
+              <a id="health-link-btn" href="#" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--ios-gray); border-radius: 12px; text-decoration: none; flex-shrink: 0;">
+                
+                <!-- Иконка: НЕТ ССЫЛКИ (перечеркнутый документ) -->
+                <svg id="health-icon-empty" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <line x1="3" y1="3" x2="21" y2="21"></line>
+                </svg>
+                
+                <!-- Иконка: ЕСТЬ ССЫЛКА (зеленый документ) -->
+                <svg id="health-icon-active" style="display: none;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="form-group"><label>Доп. информация:</label><textarea id="edit-info"></textarea></div>
+          <div class="form-group"><label>Дата рождения:</label><input type="date" id="edit-dob" /></div>
+          
+          <!-- Направления с новыми SVG иконками -->
+          <div class="form-group">
+            <label>Направления:</label>
+            <div style="display: flex; gap: 15px; margin-top: 8px;">
+              <label class="dir-label">
+                <input type="checkbox" value="Pole dance" class="dir-checkbox"> 
+                <svg class="dir-icon"><use href="#icon-train"></use></svg>
+                <span>Pole dance</span>
+              </label>
+              <label class="dir-label">
+                <input type="checkbox" value="Pole Exotic" class="dir-checkbox"> 
+                <svg class="dir-icon"><use href="#icon-exotic"></use></svg>
+                <span>Pole Exotic</span>
+              </label>
+              <label class="dir-label">
+                <input type="checkbox" value="Stretching" class="dir-checkbox"> 
+                <svg class="dir-icon"><use href="#icon-stretch"></use></svg>
+                <span>Stretching</span>
+              </label>
+            </div>
+          </div>
+
+          <input type="hidden" id="edit-original-name" />
+
+          <div class="modal-buttons-row" style="display: flex; flex-direction: row; gap: 8px; margin-top: 25px; width: 100%;">
+            <button type="button" class="apple-button" style="background: var(--ios-gray); color: var(--text-main); flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;" onclick="closeStudentModal()">Отмена</button>
+            <button type="submit" class="apple-button" style="flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;">Сохранить</button>
+            <button type="button" class="apple-button" style="background: #ff3b30; color: white; flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;" onclick="deleteStudentFromModal()">Удалить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- СЕКЦИЯ 2: Аналитика тренировок -->
+    <div id="info_train" class="section">
+      <div class="ios-form">
+        <div class="form-group">
+          <label for="month-filter">Период времени:</label>
+          <select id="month-filter">
+            <option value="all">Все месяцы</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="type-filter">Тип тренировки:</label>
+          <select id="type-filter">
+            <option value="all">Все типы</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="payment-filter">Вид оплаты:</label>
+          <select id="payment-filter">
+            <option value="all">Все виды</option>
+          </select>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--ios-gray); margin: 20px 0;">
+
+        <label>Общее количество занятий:</label>
+        <output id="total-qty"
+          style="font-weight: bold; font-size: 1.3em; display:block; margin-bottom: 15px; border:none; padding:0; background:transparent;">0</output>
+
+        <label>Общая заработанная сумма:</label>
+        <output id="total-amount" class="total-highlight" style="display:block; color: #34c759; font-weight: bold;">0
+          ₪</output>
+
+        <div id="breakdown-train" class="breakdown-container"></div>
+        <div id="breakdown-clients" class="breakdown-container"></div>
+      </div>
+    </div>
+
+    <!-- СЕКЦИЯ 3: Траты (Запись) -->
+    <div id="buy" class="section active">
+      <form id="contact-form_buy" class="ios-form">
+        <div class="form-group">
+          <label>Категория:</label>
+          <select name="optone" id="dropdown-select" required>
+            <option value="" selected disabled hidden>Выберите категорию...</option>
+            <optgroup label="Обязательные">
+              <option value="Продукты питания / химия">Продукты питания / химия</option>
+              <option value="Товары для дома">Товары для дома</option>
+              <option value="Одежда / обувь">Одежда / обувь</option>
+              <option value="Красота / здоровье">Красота / здоровье</option>
+              <option value="Аптека / лекарства">Аптека / лекарства</option>
+            </optgroup>
+            <optgroup label="Коммунальные услуги">
+              <option value="Аренда">Аренда</option>
+              <option value="Арнона">Арнона</option>
+              <option value="Вода">Вода</option>
+              <option value="Свет">Свет</option>
+              <option value="Газ">Газ</option>
+            </optgroup>
+            <optgroup label="Передвижение">
+              <option value="Бензин">Бензин</option>
+              <option value="Страховка">Страховка</option>
+              <option value="Ремонт">Ремонт</option>
+              <option value="Общественный траспорт">Общественный траспорт</option>
+              <option value="Платная дорога / парковка">Платная дорога / парковка</option>
+            </optgroup>
+            <optgroup label="Не обязательные">
+              <option value="Кафе / ресторан">Кафе / ресторан</option>
+              <option value="Развлекательный центр / парки / зоопарки">Развлечения / парки</option>
+              <option value="Техника / мебель">Техника / мебель</option>
+              <option value="Игрушки / подарки">Игрушки / подарки</option>
+              <option value="Cамообразование / курсы">Cамообразование / курсы</option>
+              <option value="Детские кружки">Детские кружки</option>
+              <option value="Путешествия (билеты/гостиница)">Путешествия</option>
+              <option value="Хобби">Хобби</option>
+            </optgroup>
+            <optgroup label="Разное">
+              <option value="Налоги">Налоги</option>
+              <option value="Медицинская страховка">Медицинская страховка</option>
+              <option value="Бухгалтер">Бухгалтер</option>
+              <option value="Кредиты">Кредиты</option>
+              <option value="Связь / Интернет">Связь / Интернет</option>
+              <option value="Детский сад">Детский сад</option>
+              <option value="Образование">Образование</option>
+              <option value="Заказы с интернета">Заказы с интернета</option>
+              <option value="Другое">Другое</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Сумма (₪):</label>
+          <input type="number" value="" name="rating" placeholder="0" required step="any" min="1" />
+        </div>
+
+        <div class="form-group">
+          <label>Комментарий:</label>
+          <textarea name="message" placeholder="Дополнительная информация..."></textarea>
+        </div>
+
+        <input type="hidden" id="data_groupLabel" name="groupLabel" value="" />
+        <button type="submit" class="apple-button">Добавить трату</button>
+      </form>
+    </div>
+
+    <!-- СЕКЦИЯ 4: Аналитика покупок -->
+    <div id="info_buy" class="section">
+      <div class="ios-form">
+        <div class="form-group">
+          <label for="month-filter_buy">Период времени:</label>
+          <select id="month-filter_buy">
+            <option value="all">Все месяцы</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="type-filter_buy">Категория:</label>
+          <select id="type-filter_buy">
+            <option value="all">Все категории</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="payment-filter_buy">Вид трат:</label>
+          <select id="payment-filter_buy">
+            <option value="all">Все виды</option>
+          </select>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--ios-gray); margin: 20px 0;">
+
+        <label>Всего потрачено:</label>
+        <output id="total-amount_buy" class="total-highlight"
+          style="display:block; color: #ff3b30; font-weight: bold;">0 ₪</output>
+
+        <div id="breakdown-buy" class="breakdown-container"></div>
+
+        <a href="https://docs.google.com/spreadsheets/d/13aZbewOnoFq45Altz0YV8Qv1Omr1DkQDbfoaHNRwaLA/edit?gid=0#gid=0">Гугл
+          табличка</a>
+      </div>
+    </div>
+
+    <!-- СЕКЦИЯ 5: Доп. доход (Запись) -->
+    <div id="extra_income" class="section">
+      <form id="contact-form_extra" class="ios-form">
+
+
+        <div class="form-group">
+          <label>Категория:</label>
+          <select name="category" required>
+            <option value="" selected disabled hidden>Выберите категорию...</option>
+            <option value="Зарплата">Заработная плата</option>
+            <option value="Квартирные">Квартирные</option>
+            <option value="Детские">Детские</option>
+            <option value="Пецуим">Пецуим</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Сумма (₪):</label>
+          <input type="number" name="amount" placeholder="0" required min="1" />
+        </div>
+        <div class="form-group">
+          <label>Комментарий:</label>
+          <textarea name="message" placeholder="Дополнительная информация..."></textarea>
+        </div>
+
+        <button type="submit" class="apple-button">Записать доход</button>
+      </form>
+    </div>
+
+    <!-- СЕКЦИЯ 6: Доп. доход (Аналитика) -->
+    <div id="info_extra_income" class="section">
+      <div class="ios-form">
+        <div class="form-group">
+          <label for="month-filter_income">Период времени:</label>
+          <select id="month-filter_income">
+            <option value="all">Все месяцы</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="type-filter_income">Категория:</label>
+          <select id="type-filter_income">
+            <option value="all">Все категории</option>
+          </select>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--ios-gray); margin: 20px 0;">
+
+        <label>Всего получено:</label>
+        <output id="total-amount_income" class="total-highlight"
+          style="display:block; color: var(--ios-blue); font-weight: bold;">0 ₪</output>
+
+        <div id="breakdown-income" class="breakdown-container"></div>
+      </div>
+    </div>
+    <!-- СЕКЦИЯ: НАСТРОЙКИ ТРЕНИРОВОК -->
+    <div id="settings_train" class="section">
+      <div class="ios-form">
+
+        <!-- Раскрывающийся список: УЧЕНИЦЫ -->
+        <div class="accordion-header" onclick="toggleAccordion('acc-students', this)">
+          <span style="display: flex; align-items: center; gap: 10px;">👯‍♀️ Ученицы</span>
+          <svg class="accordion-icon">
+            <use href="#icon-chevron-down"></use>
+          </svg>
+        </div>
+        <div id="acc-students" class="accordion-content">
+          <div class="ios-list" id="students-list-container" style="margin-bottom: 15px;">
+            <!-- Сюда JS вставит чистый список имен -->
+          </div>
+          <div style="text-align: center;">
+            <button class="apple-button" style="width: auto; padding: 10px 20px; font-size: 15px;"
+              onclick="promptAddStudent()">+ Добавить ученицу</button>
+          </div>
+        </div>
+
+        <!-- Раскрывающийся список: СТОИМОСТЬ -->
+        <div class="accordion-header" onclick="toggleAccordion('acc-prices', this)">
+          <span style="display: flex; align-items: center; gap: 10px;">💰 Стоимость</span>
+          <svg class="accordion-icon">
+            <use href="#icon-chevron-down"></use>
+          </svg>
+        </div>
+        <div id="acc-prices" class="accordion-content">
+          <form id="prices-form" onsubmit="saveAllPrices(event)">
+            <div class="ios-list-title">Абонементы</div>
+            <div class="ios-list" id="subs-list-container"></div>
+
+            <div class="ios-list-title">Разовые занятия</div>
+            <div class="ios-list" id="rates-list-container"></div>
+
+            <button type="submit" class="apple-button" style="margin-top: 15px;">Сохранить цены</button>
+          </form>
+        </div>
+        <!-- Раскрывающийся список: БАЗА ДАННЫХ И ПАПКИ -->
+        <div class="accordion-header" onclick="toggleAccordion('acc-folders', this)">
+          <span style="display: flex; align-items: center; gap: 10px;">📁 База данных (Диск)</span>
+          <svg class="accordion-icon">
+            <use href="#icon-chevron-down"></use>
+          </svg>
+        </div>
+        <div id="acc-folders" class="accordion-content">
+          <div style="margin-bottom: 15px; background: var(--ios-bg); border-radius: 12px; overflow: hidden; border: 1px solid #d1d1d6; display: flex; flex-direction: column;">
+            
+            <a href="https://drive.google.com/drive/u/0/folders/1_fNYjd5yAbDdURQqTYl-e80y_qDPODKE" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">📄 Декларации здоровья</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </a>
+            
+            <a href="https://drive.google.com/drive/u/0/folders/1ZFZ2K0WTsxdpTzVtwnueVaGkyzjCclbq" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">🖼 Аватарки</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </a>
+
+            <a href="https://drive.google.com/drive/u/0/folders/1nCXBP__w-0O4t19haBh73_eyj52X8UrC" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">🤸‍♀️ Элементы</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </a>
+
+            <a href="https://drive.google.com/drive/u/0/folders/1ATM4B8A84efzEA9to5kdKszma_PSt8ai" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">🧾 Квитанции</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </a>
+
+            <a href="https://docs.google.com/spreadsheets/d/13aZbewOnoFq45Altz0YV8Qv1Omr1DkQDbfoaHNRwaLA/edit" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+              <span style="font-size: 16px; font-weight: 500; color: var(--ios-blue);">📊 Гугл таблица (База)</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
+
+    <!-- СЕКЦИЯ: ЭЛЕМЕНТЫ -->
+    <div id="elements_train" class="section">
+      <div class="ios-form">
+        <h2 style="text-align:center; color: var(--text-main); margin-bottom: 20px;">Прогресс учениц</h2>
+        <div class="ios-list" id="elements-students-list">
+          <!-- Сюда подгрузится список учениц для выбора -->
+        </div>
+      </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРОГРЕССА -->
+    <div id="progress-modal" class="student-modal">
+      <div class="student-modal-content" style="max-height: 85vh; display: flex; flex-direction: column;">
+        <h3 id="progress-modal-title" style="margin-top: 0; text-align: center;">Прогресс</h3>
+
+        <!-- Скроллируемый список элементов -->
+        <div id="progress-elements-container" class="ios-list" style="overflow-y: auto; flex: 1; margin-bottom: 20px;">
+          <!-- Сюда JS вставит элементы с тумблерами -->
+        </div>
+
+        <input type="hidden" id="progress-student-name" />
+
+        <div class="modal-buttons-row">
+          <button type="button" class="apple-button"
+            style="background: var(--ios-gray); color: var(--text-main); flex: 1; margin: 0;"
+            onclick="closeProgressModal()">Отмена</button>
+          <button type="button" class="apple-button" style="flex: 1; margin: 0;"
+            onclick="saveStudentProgress()">Сохранить</button>
+        </div>
+      </div>
+    </div>
+    <div id="settings_buy" class="section">
+      <div class="ios-form">
+        <h2 style="text-align:center; color: var(--text-muted);">Настройки трат</h2>
+      </div>
+    </div>
+    <div id="settings_income" class="section">
+      <div class="ios-form">
+        <h2 style="text-align:center; color: var(--text-muted);">Настройки доходов</h2>
+      </div>
+    </div>
+  </main>
+
+  <!-- НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
+  <nav>
+
+    <button class="nav-btn active" data-group="seg-buy">
+      <svg class="nav-icon">
+        <use href="#icon-buy"></use>
+      </svg>
+      <span>Траты</span>
+    </button>
+    <button class="nav-btn" data-group="seg-train">
+      <svg class="nav-icon">
+        <use href="#icon-train"></use>
+      </svg>
+      <span>Тренировки</span>
+    </button>
+    <button class="nav-btn" data-group="seg-income">
+      <svg class="nav-icon">
+        <use href="#icon-income"></use>
+      </svg>
+      <span>Доходы</span>
+    </button>
+  </nav>
+
+  <script>
+    // --- 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ССЫЛКИ ---
+    let prices = { subs: {}, rates: {} };
+    let tableData_train = [];
+    let tableData_buy = [];
+    let tableData_income = [];
+
+    // ВАШИ ССЫЛКИ
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytSEPE3gzyU3WFipJxXne2DsWmseweZ50Ldg8QYA9l3yj6zr_exX6kDoxILxEk1Vzh/exec";
+    const URL_TRAIN = "https://script.google.com/macros/s/AKfycbzDz29LT58KLm-oNDBh-hN2C6SKiee3Pqn6h2f7rtrUlv9P_1dBe-WJTLGN0g94NwUp/exec";
+    const URL_BUY = "https://script.google.com/macros/s/AKfycbzu9dortwjTo4DpRyZILrZ5yEfbvrymy0vjzh2EE98bUI6Bzv_v4d22Rwd6bUitFneA/exec";
+    const URL_EXTRA_INCOME = "https://script.google.com/macros/s/AKfycbzbHTfrJ7VcZ-sIMLci27DuLk8d2BCICxgtxh0gP_30QT4ypaeuN3hiWdS-xbqzFsQawQ/exec";
+
+    const months = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+    // --- 2. ИНИЦИАЛИЗАЦИЯ ---
+    document.addEventListener("DOMContentLoaded", fetchData);
+
+    async function fetchData() {
+      showLoader("Синхронизация данных...");
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const combinedData = await response.json();
+
+        if (combinedData.settings) updateInterfaceWithSettings(combinedData.settings);
+
+        tableData_train = (combinedData.table1 || []).map(row => {
+          if (row.Дата) {
+            const d = new Date(row.Дата);
+            row.formattedMonth = !isNaN(d) ? months[d.getMonth()] : "Неизвестно";
+          }
+          return row;
+        });
+
+        tableData_buy = (combinedData.table2 || []).map(row => {
+          if (row.Дата) {
+            const d = new Date(row.Дата);
+            row.formattedMonth = !isNaN(d) ? months[d.getMonth()] : "Неизвестно";
+          }
+          return row;
+        });
+
+        tableData_income = (combinedData.table3 || []).map(row => {
+          if (row.Дата) {
+            const d = new Date(row.Дата);
+            row.formattedMonth = !isNaN(d) ? months[d.getMonth()] : "Неизвестно";
+          }
+          row.Категория = row.Категория || row.category || row.Category || 'Не указано';
+          row.Сумма = Number(row.Сумма) || Number(row.Cумма) || Number(row.amount) || Number(row.Amount) || 0;
+          return row;
+        });
+
+
+
+        initFilters();
+        calculate();
+
+      } catch (error) {
+        console.error("Ошибка загрузки:", error);
+      } finally {
+        hideLoader();
+      }
+    }
+    window.studentsDatabase = {};
+    function updateInterfaceWithSettings(settings) {
+      window.elementsDatabase = settings.elements || [];
+
+      // Отрисовка списка учениц в разделе "Элементы"
+      const elementsStudentsContainer = document.getElementById("elements-students-list");
+      if (elementsStudentsContainer) {
+        elementsStudentsContainer.innerHTML = "";
+        let studentsProgressArray = settings.clients.map(client => {
+          const name = typeof client === 'object' ? client.name : client;
+          const photoUrl = typeof client === 'object' && client.photo ? client.photo : '';
+          const progressStr = typeof client === 'object' && client.progress ? client.progress : '';
+          const completedCount = progressStr ? progressStr.split(',').filter(e => e.trim() !== "").length : 0;
+          return { name, photoUrl, completedCount };
+        });
+
+        studentsProgressArray.sort((a, b) => b.completedCount - a.completedCount);
+
+        studentsProgressArray.forEach(student => {
+          let finalPhotoUrl = getSafePhotoUrl(student.photoUrl);
+          const initials = student.name ? student.name.substring(0, 1).toUpperCase() : "👤";
+          const avatarContent = finalPhotoUrl
+            ? `<img src="${finalPhotoUrl}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">`
+            : initials;
+
+          elementsStudentsContainer.insertAdjacentHTML('beforeend', `
+            <div class="ios-list-item" style="display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; padding: 12px 16px; cursor: pointer;" onclick="openProgressModal('${student.name}')">
+              <div class="student-avatar" style="border: 1px solid #e5e5ea;">${avatarContent}</div>
+              <span class="student-name-large" style="flex: 1; text-align: left; margin: 0;">${student.name}</span>
+              <span style="background: var(--ios-blue); color: white; border-radius: 12px; padding: 2px 10px; font-size: 14px; font-weight: bold;">${student.completedCount}</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </div>
+          `);
+        });
+      }
+
+      // Обновляем списки для форм записи
+      const dl = document.getElementById("names");
+      if (dl) {
+        dl.innerHTML = "";
+        settings.clients.forEach(client => {
+          const name = typeof client === 'object' ? client.name : client;
+          dl.appendChild(new Option(name, name));
+        });
+      }
+
+      // А) Ученицы (Настройки - с алфавитной сортировкой, фото, возрастом и иконками направлений)
+      const studentsContainer = document.getElementById("students-list-container");
+      if (studentsContainer) {
+        studentsContainer.innerHTML = "";
+
+        let sortedClients = [...settings.clients].sort((a, b) => {
+          const nameA = (typeof a === 'object' ? a.name : a).toLowerCase();
+          const nameB = (typeof b === 'object' ? b.name : b).toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        sortedClients.forEach(client => {
+          const name = typeof client === 'object' ? client.name : client;
+          const photoUrl = typeof client === 'object' && client.photo ? client.photo : '';
+          const dob = typeof client === 'object' && client.dob ? client.dob : '';
+
+          window.studentsDatabase[name] = typeof client === 'object' ? client : { name: name };
+
+          let finalPhotoUrl = getSafePhotoUrl(photoUrl);
+          const initials = name ? name.substring(0, 1).toUpperCase() : "👤";
+          const avatarContent = finalPhotoUrl
+            ? `<img src="${finalPhotoUrl}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">`
+            : initials;
+
+
+
+          let ageHtml = "";
+          if (dob) {
+            let birthDate;
+            if (dob.includes('.')) {
+              let parts = dob.split('.');
+              birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            } else {
+              birthDate = new Date(dob);
+            }
+            if (!isNaN(birthDate.getTime())) {
+              const today = new Date();
+              let age = today.getFullYear() - birthDate.getFullYear();
+              const m = today.getMonth() - birthDate.getMonth();
+              if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+              }
+              let txt = 'лет';
+              let count = age % 100;
+              if (count >= 5 && count <= 20) { txt = 'лет'; }
+              else {
+                count = count % 10;
+                if (count === 1) txt = 'год';
+                else if (count >= 2 && count <= 4) txt = 'года';
+              }
+              ageHtml = `<span style="color: var(--text-muted); font-size: 15px; font-weight: normal; margin-left: 8px;">${age} ${txt}</span>`;
+            }
+          }
+
+
+          // --- ГЕНЕРАЦИЯ SVG-ИКОНОК НАПРАВЛЕНИЙ ВНУТРИ ЦИКЛА ---
+          const dirsStr = typeof client === 'object' && client.directions ? client.directions : '';
+          let dirsHtml = '<div style="display: flex; gap: 4px; margin-left: auto; margin-right: 10px;">';
+
+          if (dirsStr.includes("Pole dance")) {
+            dirsHtml += `
+              <div style="width:28px; height:28px; border: 1px solid #ff9500; border-radius:50%; background-color: rgba(255, 149, 0, 0.2); display:flex; align-items:center; justify-content:center; color:#ff9500;" title="Pole dance">
+                <svg style="width:16px; height:16px; fill:currentColor;"><use href="#icon-train"></use></svg>
+              </div>`;
+          }
+          if (dirsStr.includes("Pole Exotic")) {
+            dirsHtml += `
+              <div style="width:28px; height:28px; border: 1px solid #ff2d55; border-radius:50%; background-color: rgba(255, 45, 85, 0.15); display:flex; align-items:center; justify-content:center; color:#ff2d55;" title="Pole Exotic">
+                <svg style="width:16px; height:16px; fill:currentColor;"><use href="#icon-exotic"></use></svg>
+              </div>`;
+          }
+          if (dirsStr.includes("Stretching")) {
+            dirsHtml += `
+              <div style="width:28px; height:28px; border: 1px solid #5ac8fa; border-radius:50%; background-color: rgba(90, 200, 250, 0.15); display:flex; align-items:center; justify-content:center; color:#5ac8fa;" title="Stretching">
+                <svg style="width:16px; height:16px; fill:currentColor;"><use href="#icon-stretch"></use></svg>
+              </div>`;
+          }
+          dirsHtml += '</div>';
+
+          studentsContainer.insertAdjacentHTML('beforeend', `
+            <div class="ios-list-item" style="display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; padding: 12px 16px; cursor: pointer;" onclick="openStudentModal('${name}')">
+              <div class="student-avatar" style="border: 1px solid #e5e5ea;">${avatarContent}</div>
+              <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <span class="student-name-large" style="margin: 0;">${name} ${ageHtml}</span>
+              </div>
+              ${dirsHtml}
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </div>
+          `);
+        });
+      }
+
+      // Б) Абонементы
+      const subsContainer = document.getElementById("subs-list-container");
+      if (subsContainer) {
+        subsContainer.innerHTML = "";
+        settings.subs.forEach(item => {
+          const [name, price] = item;
+          prices.subs[name] = price;
+          subsContainer.insertAdjacentHTML('beforeend', `
+            <div class="ios-list-item" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px;">
+              <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">${name}</span>
+              <div style="display: flex; align-items: center; background: var(--ios-bg); padding: 6px 12px; border-radius: 10px; border: 1px solid #d1d1d6;">
+                <input type="number" data-price-name="${name}" value="${price}" style="width: 60px; text-align: right; border: none; background: transparent; font-size: 16px; font-weight: bold; color: var(--ios-blue); padding: 0;">
+                <span style="color: var(--text-muted); margin-left: 4px; font-weight: 600;">₪</span>
+              </div>
+            </div>
+          `);
+        });
+      }
+
+      // В) Разовые занятия
+      const ratesContainer = document.getElementById("rates-list-container");
+      if (ratesContainer) {
+        ratesContainer.innerHTML = "";
+        settings.rates.forEach(item => {
+          const [name, price] = item;
+          prices.rates[name] = price;
+          ratesContainer.insertAdjacentHTML('beforeend', `
+            <div class="ios-list-item" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px;">
+              <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">${name}</span>
+              <div style="display: flex; align-items: center; background: var(--ios-bg); padding: 6px 12px; border-radius: 10px; border: 1px solid #d1d1d6;">
+                <input type="number" data-price-name="${name}" value="${price}" style="width: 60px; text-align: right; border: none; background: transparent; font-size: 16px; font-weight: bold; color: var(--ios-blue); padding: 0;">
+                <span style="color: var(--text-muted); margin-left: 4px; font-weight: 600;">₪</span>
+              </div>
+            </div>
+          `);
+        });
+      }
+      updatePrice();
+    }
+
+    // Открытие модального окна (пока с тестовыми данными или тем, что есть)
+
+
+
+    ////////
+    // --- 3. ЛОГИКА НАВИГАЦИИ (ВЫПАДАЮЩЕЕ МЕНЮ) ---
+    const sectionsMap = {
+      'seg-train': {
+        record: 'train', analytics: 'info_train', settings: 'settings_train', elements: 'elements_train', // <-- добавили elements
+        nameRecord: 'Запись', nameAnalytics: 'Аналитика', nameSettings: 'Настройки', nameElements: 'Элементы' // <-- добавили nameElements
+      },
+      // ... buy и income оставляем без изменений
+      'seg-buy': {
+        record: 'buy', analytics: 'info_buy', settings: 'settings_buy',
+        nameRecord: 'Запись трат', nameAnalytics: 'Аналитика трат', nameSettings: 'Настройки трат'
+      },
+      'seg-income': {
+        record: 'extra_income', analytics: 'info_extra_income', settings: 'settings_income',
+        nameRecord: 'Запись дохода', nameAnalytics: 'Аналитика дохода', nameSettings: 'Настройки доходов'
+      }
+    };
+
+    const iconsMap = {
+      'record': '#icon-edit',
+      'analytics': '#icon-chart',
+      'settings': '#icon-gear',
+      'elements': '#icon-train' // <-- Новая строка
+    };
+
+    let currentGroup = 'seg-buy'; // Стартовая группа (из data-group нижних кнопок)
+    let currentMode = 'record';     // Стартовый режим
+
+    const menuTrigger = document.getElementById('menu-trigger-btn');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const overlay = document.getElementById('dropdown-overlay');
+    const currentModeIcon = document.getElementById('current-mode-icon');
+    const titleEl = document.getElementById('header-title');
+
+    function updateUI() {
+      // Фильтруем пункты меню по текущей вкладке
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        const allowedGroup = item.getAttribute('data-only');
+        // Если метки нет ИЛИ метка совпадает с текущей группой — показываем
+        if (!allowedGroup || allowedGroup === currentGroup) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      // Скрываем все секции
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+      const map = sectionsMap[currentGroup];
+      let targetId, targetTitle;
+
+      if (currentMode === 'record') { targetId = map.record; targetTitle = map.nameRecord; }
+      else if (currentMode === 'analytics') { targetId = map.analytics; targetTitle = map.nameAnalytics; }
+      else if (currentMode === 'settings') { targetId = map.settings; targetTitle = map.nameSettings; }
+      else if (currentMode === 'elements') { targetId = map.elements; targetTitle = map.nameElements; } // <-- Новая строка
+
+      // Обновляем заголовок и показываем секцию
+      titleEl.textContent = targetTitle;
+      document.getElementById(targetId).classList.add('active');
+
+      // Обновляем иконку в шапке
+      currentModeIcon.innerHTML = `<use href="${iconsMap[currentMode]}"></use>`;
+
+      // Подсвечиваем активный пункт меню
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.classList.remove('active-item');
+        if (item.getAttribute('data-mode') === currentMode) item.classList.add('active-item');
+      });
+    }
+
+    // Открытие/закрытие меню
+    function toggleMenu() {
+      dropdownMenu.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+    menuTrigger.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+
+    // Клик по пункту меню (Запись / Аналитика / Настройки)
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        currentMode = e.currentTarget.getAttribute('data-mode');
+        toggleMenu();
+        updateUI();
+      });
+    });
+
+    // Клик по нижней панели
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        currentGroup = btn.getAttribute('data-group');
+        currentMode = 'record'; // При смене таба всегда возвращаем на форму записи
+        updateUI();
+      });
+    });
+
+    // Запускаем отрисовку при старте
+    updateUI();
+
+    // --- 4. ЛОГИКА ФОРМ ---
+    const orderType = document.getElementById("order_type");
+    orderType.addEventListener("change", function () {
+      document.querySelectorAll(".section_train").forEach(s => s.classList.remove("active"));
+      if (this.value === "Абонемент") {
+        document.getElementById("section-Абонемент").classList.add("active");
+      } else if (this.value) {
+        document.getElementById("section-Single").classList.add("active");
+        document.getElementById("qty_single").value = 1;
+      }
+      updatePrice();
+    });
+
+    document.getElementById("sub-select").addEventListener("change", updatePrice);
+
+    document.querySelectorAll(".stepper-btn").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const input = this.parentElement.querySelector('input[type="number"]');
+        let val = parseInt(input.value) || 1;
+        if (this.classList.contains("plus-btn")) val++;
+        if (this.classList.contains("minus-btn") && val > 1) val--;
+        input.value = val;
+        updatePrice();
+      });
+    });
+
+    function updatePrice() {
+      const type = document.getElementById("order_type").value;
+      if (type === "Абонемент") {
+        const subType = document.getElementById("sub-select").value;
+        document.getElementById("sum_subscription").value = prices.subs[subType] || 0;
+      } else if (type) {
+        const rate = prices.rates[type] || 0;
+        const qty = parseInt(document.getElementById("qty_single").value) || 1;
+        document.getElementById("sum_single").value = rate * qty;
+      }
+    }
+    // --- АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ГРУППЫ ТРАТ ---
+    document.getElementById("dropdown-select").addEventListener("change", function () {
+      const selectedOption = this.options[this.selectedIndex];
+      const optGroup = selectedOption.parentElement;
+      if (optGroup && optGroup.tagName === "OPTGROUP") {
+        document.getElementById("data_groupLabel").value = optGroup.label;
+      } else {
+        document.getElementById("data_groupLabel").value = "";
+      }
+    });
+
+    // ОТПРАВКА ФОРМ
+    async function sendFormData(e, url) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      formData.append("source", window.location.href);
+
+      showLoader("Отправка...");
+      try {
+        await fetch(url, { method: "POST", body: formData });
+        e.target.reset();
+        showToast();
+        fetchData();
+      } catch (error) {
+        alert("❌ Ошибка отправки.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    document.querySelectorAll("form").forEach(form => {
+      form.addEventListener("submit", (e) => {
+        const type = orderType.value;
+        const typeRes = document.getElementById("data_type_result");
+        const lessRes = document.getElementById("sum_lessons_result");
+        const monRes = document.getElementById("sum_money_result");
+
+        if (type === "Абонемент") {
+          typeRes.value = "Абонемент";
+          monRes.value = document.getElementById("sum_subscription").value;
+          const subType = document.getElementById("sub-select").value;
+          const match = subType.match(/\d+/);
+          lessRes.value = match ? parseInt(match[0], 10) : 1;
+        } else {
+          typeRes.value = type;
+          lessRes.value = document.getElementById("qty_single").value;
+          monRes.value = document.getElementById("sum_single").value;
+        }
+
+        // Определяем URL в зависимости от ID формы
+        const url = form.id === "contact-form" ? URL_TRAIN :
+          form.id === "contact-form_buy" ? URL_BUY : URL_EXTRA_INCOME;
+
+        sendFormData(e, url);
+      });
+    });
+
+
+    // --- 5. АНАЛИТИКА ---
+    function fillSelect(selectId, data, key, defaultLabel) {
+      const select = document.getElementById(selectId);
+      const currentVal = select.value;
+      const counts = data.reduce((acc, row) => {
+        if (row[key]) acc[row[key]] = (acc[row[key]] || 0) + 1;
+        return acc;
+      }, {});
+      let html = `<option value="all">${defaultLabel}</option>`;
+      let sortedKeys = Object.keys(counts);
+      if (key === "formattedMonth") sortedKeys.sort((a, b) => months.indexOf(a) - months.indexOf(b));
+      else sortedKeys.sort();
+      sortedKeys.forEach(val => { html += `<option value="${val}" ${val === currentVal ? 'selected' : ''}>${val}</option>`; });
+      select.innerHTML = html;
+    }
+
+    function initFilters() {
+      fillSelect("month-filter", tableData_train, "formattedMonth", "Все месяцы");
+      fillSelect("type-filter", tableData_train, "Тип", "Все типы");
+      fillSelect("payment-filter", tableData_train, "Оплата", "Все виды");
+      fillSelect("month-filter_buy", tableData_buy, "formattedMonth", "Все месяцы");
+      fillSelect("type-filter_buy", tableData_buy, "Категория", "Все категории");
+      fillSelect("payment-filter_buy", tableData_buy, "Вид трат", "Все виды");
+      fillSelect("month-filter_income", tableData_income, "formattedMonth", "Все месяцы");
+      fillSelect("type-filter_income", tableData_income, "Категория", "Все категории");
+
+      // Добавляем опцию "Тренировки" в выпадающий список фильтра доходов, если её там еще нет
+      const incSelect = document.getElementById("type-filter_income");
+      if (!Array.from(incSelect.options).some(o => o.value === "Тренировки")) {
+        incSelect.insertAdjacentHTML('beforeend', `<option value="Тренировки">Тренировки</option>`);
+      }
+
+      document.querySelectorAll("select[id$='-filter'], select[id$='-filter_buy'], select[id$='-filter_income']").forEach(s => s.onchange = calculate);
+    }
+
+    function renderBreakdown(containerId, dataObj, totalAmount, colorClass) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      if (totalAmount === 0 || Object.keys(dataObj).length === 0) return;
+      let html = `<div class="breakdown-title">Детализация:</div>`;
+      const sorted = Object.entries(dataObj).sort((a, b) => b[1] - a[1]);
+      sorted.forEach(([key, val]) => {
+        if (val === 0) return;
+        const percent = Math.round((val / totalAmount) * 100);
+        html += `<div class="breakdown-item"><span>${key}</span><span><b>${val.toLocaleString()} ₪</b> (${percent}%)</span></div>
+                 <div class="breakdown-bar-bg"><div class="breakdown-bar-fill ${colorClass}" style="width: ${percent}%;"></div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderClientBreakdown(containerId, dataObj, totalLessons) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      if (totalLessons === 0 || Object.keys(dataObj).length === 0) return;
+      let html = `<div class="breakdown-title" style="margin-top: 25px;">Посещения (ученицы):</div>`;
+      const sorted = Object.entries(dataObj).sort((a, b) => b[1] - a[1]);
+      sorted.forEach(([key, val]) => {
+        if (val === 0) return;
+        const percent = Math.round((val / totalLessons) * 100);
+        html += `<div class="breakdown-item"><span>${key}</span><span><b>${val}</b> занятий</span></div>
+                 <div class="breakdown-bar-bg" style="height: 6px; margin-bottom: 14px;"><div class="breakdown-bar-fill fill-blue" style="width: ${percent}%;"></div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function calculate() {
+      // Тренировки
+      const mVal = document.getElementById("month-filter").value;
+      const tVal = document.getElementById("type-filter").value;
+      const tpVal = document.getElementById("payment-filter").value;
+      const filteredTrain = tableData_train.filter(r => (mVal === "all" || r.formattedMonth === mVal) && (tVal === "all" || String(r.Тип) === tVal) && (tpVal === "all" || String(r.Оплата) === tpVal));
+
+      const totalTrainAmount = filteredTrain.reduce((sum, r) => sum + (Number(r.Cумма) || 0), 0);
+      const totalLessons = filteredTrain.reduce((sum, r) => sum + (Number(r.Количество) || 0), 0);
+      document.getElementById("total-qty").textContent = totalLessons;
+      document.getElementById("total-amount").textContent = totalTrainAmount.toLocaleString() + " ₪";
+
+      const trainBreakdown = {};
+      const clientBreakdown = {};
+      filteredTrain.forEach(r => {
+        const type = r.Тип || 'Не указано';
+        trainBreakdown[type] = (trainBreakdown[type] || 0) + (Number(r.Cумма) || 0);
+        const clientName = r.Имя || 'Без имени';
+        clientBreakdown[clientName] = (clientBreakdown[clientName] || 0) + (Number(r.Количество) || 0);
+      });
+      renderBreakdown("breakdown-train", trainBreakdown, totalTrainAmount, "fill-green");
+      renderClientBreakdown("breakdown-clients", clientBreakdown, totalLessons);
+
+      // Покупки
+      const mbVal = document.getElementById("month-filter_buy").value;
+      const cbVal = document.getElementById("type-filter_buy").value;
+      const pbVal = document.getElementById("payment-filter_buy").value;
+      const filteredBuy = tableData_buy.filter(r => (mbVal === "all" || r.formattedMonth === mbVal) && (cbVal === "all" || String(r.Категория) === cbVal) && (pbVal === "all" || String(r["Вид трат"]) === pbVal));
+
+      const totalBuyAmount = filteredBuy.reduce((sum, r) => sum + (Number(r.Cумма) || Number(r.Сумма) || Number(r.rating) || 0), 0);
+      document.getElementById("total-amount_buy").textContent = totalBuyAmount.toLocaleString() + " ₪";
+
+      const buyBreakdown = {};
+      filteredBuy.forEach(r => {
+        const category = r.Категория || 'Не указано';
+        const cost = Number(r.Cумма) || Number(r.Сумма) || Number(r.rating) || 0;
+        buyBreakdown[category] = (buyBreakdown[category] || 0) + cost;
+      });
+      renderBreakdown("breakdown-buy", buyBreakdown, totalBuyAmount, "fill-red");
+
+      // Доходы (включая тренировки)
+      const miVal = document.getElementById("month-filter_income").value;
+      const ciVal = document.getElementById("type-filter_income").value;
+
+      const filteredIncome = tableData_income.filter(r =>
+        (miVal === "all" || r.formattedMonth === miVal) &&
+        (ciVal === "all" || String(r.Категория) === ciVal)
+      );
+
+      let totalIncomeAmount = filteredIncome.reduce((sum, r) => sum + (Number(r.Сумма) || 0), 0);
+
+      const incomeBreakdown = {};
+      filteredIncome.forEach(r => {
+        const category = r.Категория || 'Не указано';
+        incomeBreakdown[category] = (incomeBreakdown[category] || 0) + (Number(r.Сумма) || 0);
+      });
+
+      // --- ИНТЕГРАЦИЯ ТРЕНИРОВОК В ДОХОДЫ ---
+      // Если фильтр категорий стоит на "Все категории" или мы специально выбрали "Тренировки":
+      if (ciVal === "all" || ciVal === "Тренировки") {
+        // Берем все тренировки за выбранный месяц
+        const trainIncome = tableData_train
+          .filter(r => miVal === "all" || r.formattedMonth === miVal)
+          .reduce((sum, r) => sum + (Number(r.Cумма) || Number(r.Сумма) || 0), 0);
+
+        if (trainIncome > 0) {
+          totalIncomeAmount += trainIncome; // Плюсуем к общей сумме
+          incomeBreakdown["Тренировки"] = (incomeBreakdown["Тренировки"] || 0) + trainIncome; // Добавляем категорию в шкалу
+        }
+      }
+      // --------------------------------------
+
+      document.getElementById("total-amount_income").textContent = totalIncomeAmount.toLocaleString() + " ₪";
+      renderBreakdown("breakdown-income", incomeBreakdown, totalIncomeAmount, "fill-blue");
+    }
+
+    // --- 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (UX) ---
+    const showLoader = (text) => { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').classList.add('active'); };
+    const hideLoader = () => document.getElementById('global-loader').classList.remove('active');
+    const showToast = () => {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      if (navigator.vibrate) navigator.vibrate(50);
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    };
+
+    if ("serviceWorker" in navigator && window.location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register("sw.js").catch(err => console.warn("SW reg failed", err));
+    }
+
+
+    // --- ФУНКЦИИ УПРАВЛЕНИЯ НАСТРОЙКАМИ CRM ---
+
+    // --- РЕАЛЬНЫЕ ЗАПРОСЫ К СЕРВЕРУ ---
+
+    function promptAddStudent() {
+      const newName = prompt("Введите имя и фамилию новой ученицы:");
+      if (newName && newName.trim() !== "") {
+        showLoader("Добавление...");
+
+        const formData = new FormData();
+        formData.append("action", "add_student");
+        formData.append("name", newName.trim());
+
+        fetch(URL_TRAIN, { method: "POST", body: formData })
+          .then(response => response.json())
+          .then(result => {
+            hideLoader();
+            showToast();
+            fetchData(); // Перезагружаем данные, чтобы список обновился
+          })
+          .catch(error => {
+            hideLoader();
+            alert("❌ Ошибка при добавлении ученицы.");
+          });
+      }
+    }
+
+    // Удаление из модального окна
+    function deleteStudentFromModal() {
+      const name = document.getElementById("edit-original-name").value;
+      if (confirm(`Вы действительно хотите удалить ученицу: ${name}?`)) {
+        showLoader("Удаление...");
+        closeStudentModal();
+
+        const formData = new FormData();
+        formData.append("action", "delete_student");
+        formData.append("name", name);
+
+        fetch(URL_TRAIN, { method: "POST", body: formData })
+          .then(response => response.json())
+          .then(result => {
+            hideLoader();
+            showToast();
+            fetchData(); // Перезагружаем данные
+          })
+          .catch(error => {
+            hideLoader();
+            alert("❌ Ошибка при удалении.");
+          });
+      }
+    }
+
+
+    // Функция раскрытия списков
+    window.toggleAccordion = function (contentId, headerElement) {
+      const content = document.getElementById(contentId);
+      content.classList.toggle('active');
+      headerElement.classList.toggle('active');
+    };
+
+
+
+
+
+    // Надежно объявляем переменные для нового фото
+    window.currentPhotoBase64 = null;
+    window.currentPhotoName = null;
+
+
+    // Предпросмотр загруженного фото + сохранение в память для отправки
+    window.previewPhoto = function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            // Сжимаем картинку до максимум 400px по ширине/высоте для аватара
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 400;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+            } else {
+              if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Получаем легкую сжатую картинку в base64
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+            document.getElementById('modal-avatar-preview').innerHTML = `<img src="${compressedBase64}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            window.currentPhotoBase64 = compressedBase64;
+            window.currentPhotoName = file.name;
+          };
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // Функция закрытия модального окна ученицы
+    window.closeStudentModal = function () {
+      const modal = document.getElementById("student-modal");
+      if (modal) {
+        modal.classList.remove("active");
+      }
+    };
+
+    // Функция удаления (на всякий случай проверим, что она тоже на месте)
+    window.deleteStudentFromModal = function () {
+      const name = document.getElementById("edit-original-name").value;
+      if (confirm(`Вы действительно хотите удалить ученицу: ${name}?`)) {
+        showLoader("Удаление...");
+        window.closeStudentModal();
+
+        const payload = { action: "delete_student", name: name };
+        fetch(URL_TRAIN, { method: "POST", body: JSON.stringify(payload) })
+          .then(response => response.json())
+          .then(result => {
+            hideLoader();
+            showToast();
+            fetchData();
+          }).catch(error => { hideLoader(); alert("Ошибка при удалении."); });
+      }
+    };
+
+    window.openStudentModal = function (name) {
+      const student = window.studentsDatabase[name] || {};
+      document.getElementById("edit-original-name").value = name;
+      document.getElementById("edit-name").value = name;
+ 
+
+      document.getElementById("edit-email").value = student.email || "";
+      document.getElementById("edit-hebrew-name").value = student.hebrewName || "";
+      document.getElementById("edit-phone").value = student.phone || "";
+      document.getElementById("edit-health").value = student.health || "";
+      updateHealthIcon(); 
+      document.getElementById("edit-info").value = student.info || "";
+
+      // Подставляем дату рождения
+      if (student.dob && student.dob.includes('.')) {
+        let parts = student.dob.split('.');
+        document.getElementById("edit-dob").value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      } else {
+        document.getElementById("edit-dob").value = student.dob || "";
+      }
+
+      // Расставляем галочки направлений
+      const dirs = student.directions ? student.directions.split(',').map(s => s.trim()) : [];
+      document.querySelectorAll('.dir-checkbox').forEach(cb => {
+        cb.checked = dirs.includes(cb.value);
+      });
+
+      // Очищаем переменные при новом открытии модалки
+      window.currentPhotoBase64 = null;
+      window.currentPhotoName = null;
+
+      let finalPhotoUrl = student.photo || "";
+      if (finalPhotoUrl && !finalPhotoUrl.startsWith('http')) {
+        finalPhotoUrl = `https://drive.google.com/thumbnail?id=${finalPhotoUrl}&sz=w200`;
+      } else if (finalPhotoUrl) {
+        const driveMatch = finalPhotoUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/);
+        if (driveMatch) {
+          finalPhotoUrl = `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w200`;
+        }
+      }
+
+      // Объявляем инициалы для генерации заглушки аватарки
+      const initials = name ? name.substring(0, 1).toUpperCase() : "👤";
+
+      document.getElementById('modal-avatar-preview').innerHTML = finalPhotoUrl
+        ? `<img src="${finalPhotoUrl}" style="width: 100%; height: 100%; object-fit: cover;">`
+        : initials;
+
+      document.getElementById("student-modal").classList.add("active");
+    };
+    window.updateHealthIcon = function () {
+      const val = document.getElementById("edit-health").value.trim();
+      const btn = document.getElementById("health-link-btn");
+      const iconEmpty = document.getElementById("health-icon-empty");
+      const iconActive = document.getElementById("health-icon-active");
+
+      if (val) {
+        btn.href = val;
+        btn.style.pointerEvents = "auto";
+        btn.style.background = "rgba(52, 199, 89, 0.15)"; // Подсветка фона зеленым
+        iconEmpty.style.display = "none";
+        iconActive.style.display = "block";
+      } else {
+        btn.href = "#";
+        btn.style.pointerEvents = "none"; // Делаем кнопку некликабельной
+        btn.style.background = "var(--ios-gray)";
+        iconEmpty.style.display = "block";
+        iconActive.style.display = "none";
+      }
+    };
+    window.saveStudentData = function (event) {
+      event.preventDefault();
+
+      try {
+        const originalNameEl = document.getElementById("edit-original-name");
+        const nameEl = document.getElementById("edit-name");
+        const emailEl = document.getElementById("edit-email");
+        const hebrewNameEl = document.getElementById("edit-hebrew-name");
+        const phoneEl = document.getElementById("edit-phone");
+        const healthEl = document.getElementById("edit-health");
+        const infoEl = document.getElementById("edit-info");
+        const dobEl = document.getElementById("edit-dob");
+
+        const originalName = originalNameEl ? originalNameEl.value : "";
+        const student = window.studentsDatabase[originalName] || {};
+        const existingPhoto = student.photo || "";
+
+        const checkedDirs = Array.from(document.querySelectorAll('.dir-checkbox:checked')).map(cb => cb.value).join(', ');
+
+        const formData = new FormData();
+        formData.append("action", "update_student");
+        formData.append("originalName", originalName);
+        formData.append("name", nameEl ? nameEl.value.trim() : "");
+        formData.append("email", emailEl ? emailEl.value.trim() : "");
+        formData.append("hebrewName", hebrewNameEl ? hebrewNameEl.value.trim() : "");
+        formData.append("phone", phoneEl ? phoneEl.value.trim() : "");
+        formData.append("health", healthEl ? healthEl.value.trim() : "");
+        formData.append("info", infoEl ? infoEl.value.trim() : "");
+        formData.append("dob", dobEl ? dobEl.value : "");
+        formData.append("directions", checkedDirs);
+        formData.append("existingPhoto", existingPhoto);
+
+        if (window.currentPhotoBase64) {
+          formData.append("photoBase64", window.currentPhotoBase64);
+          formData.append("photoName", window.currentPhotoName || "avatar.jpg");
+        }
+
+        // Сразу закрываем модалку для плавной работы интерфейса
+        closeStudentModal();
+        showLoader("Сохранение...");
+
+        // Отправка на сервер в фоновом режиме
+        fetch(URL_TRAIN, { method: "POST", body: formData })
+          .then(response => response.json())
+          .then(result => {
+            hideLoader();
+            showToast();
+            setTimeout(() => {
+              fetchData();
+            }, 800);
+          })
+          .catch(error => {
+            // Игнорируем технические CORS-ошибки браузера, если данные долетели
+            hideLoader();
+            showToast();
+            setTimeout(() => {
+              fetchData();
+            }, 800);
+          });
+      } catch (err) {
+        hideLoader();
+        alert("❌ Ошибка в приложении (HTML): " + err.message);
+      }
+    };
+    // Сохранение стоимоссти 
+    function saveAllPrices(event) {
+      event.preventDefault();
+      showLoader("Сохранение цен...");
+
+      const formData = new FormData();
+      formData.append("action", "save_all_prices");
+
+      const priceInputs = document.querySelectorAll("#acc-prices input[type='number']");
+      priceInputs.forEach(input => {
+        const name = input.getAttribute("data-price-name");
+        formData.append("price_" + name, input.value);
+      });
+
+      fetch(URL_TRAIN, {
+        method: "POST",
+        body: formData
+      })
+        .then(() => {
+          hideLoader();
+          showToast();
+          // Убрали fetchData(), чтобы избежать лишнего запроса и ошибки 404
+        })
+        .catch(error => {
+          hideLoader();
+          alert("❌ Ошибка сохранения цен.");
+        });
+    }
+
+    function openProgressModal(name) {
+      const student = window.studentsDatabase[name] || {};
+      document.getElementById("progress-student-name").value = name;
+      document.getElementById("progress-modal-title").textContent = name;
+
+      const completedElements = student.progress ? student.progress.split(',').map(e => e.trim()) : [];
+      const container = document.getElementById("progress-elements-container");
+      container.innerHTML = "";
+
+      // 1. Группируем элементы по категориям
+      const groupedElements = {};
+      window.elementsDatabase.forEach(el => {
+        const cat = el.category || "Разное";
+        if (!groupedElements[cat]) groupedElements[cat] = [];
+        groupedElements[cat].push(el);
+      });
+
+      // 2. Генерируем HTML для каждой категории
+      for (const category in groupedElements) {
+        // Безопасный ID для аккордеона
+        const catId = 'cat-' + category.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+
+        // Считаем прогресс внутри категории
+        const totalInCategory = groupedElements[category].length;
+        const completedInCategory = groupedElements[category].filter(el => completedElements.includes(el.name)).length;
+
+        let categoryHTML = `
+      <div class="accordion-header" onclick="toggleAccordion('${catId}', this)" style="background: var(--ios-bg); margin-top: 10px; border-radius: 10px; border: 1px solid #d1d1d6;">
+        <span style="font-weight: 600;">${category} <span style="color: var(--text-muted); font-weight: normal; font-size: 14px;">(${completedInCategory}/${totalInCategory})</span></span>
+        <svg class="accordion-icon"><use href="#icon-chevron-down"></use></svg>
+      </div>
+      <div id="${catId}" class="accordion-content" style="padding: 0;">
+        <div class="ios-list" style="margin-bottom: 0;">
+    `;
+
+        // Рисуем каждый элемент внутри категории
+        groupedElements[category].forEach(el => {
+          const isChecked = completedElements.includes(el.name) ? 'checked' : '';
+          const descHTML = el.description ? `<div style="font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.2;">${el.description}</div>` : '';
+
+          // --- УМНЫЙ ФИКС ДЛЯ ФОТО ИЗ GOOGLE DRIVE ---
+          let finalPhotoUrl = el.photo;
+          // Если это ссылка на Google Диск, вытаскиваем её ID и делаем ссылку на миниатюру
+          const driveMatch = finalPhotoUrl ? finalPhotoUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/) : null;
+          if (driveMatch && finalPhotoUrl.includes('drive.google.com')) {
+            finalPhotoUrl = `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w400`;
+          }
+
+          const photoHTML = finalPhotoUrl
+            ? `<img src="${finalPhotoUrl}" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #e5e5ea; border: 1px solid #e5e5ea;">`
+            : `<div style="width: 50px; height: 50px; border-radius: 10px; background: #e5e5ea; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px;">🤸‍♀️</div>`;
+
+          categoryHTML += `
+        <div class="ios-list-item" style="display: flex; gap: 14px; align-items: center; padding: 12px 16px;">
+          ${photoHTML}
+          <div style="flex: 1; text-align: left;">
+            <div style="font-size: 16px; font-weight: 600; color: var(--text-main);">${el.name}</div>
+            ${descHTML}
+          </div>
+          <input type="checkbox" class="ios-toggle" value="${el.name}" ${isChecked}>
+        </div>
+      `;
+        });
+
+
+        categoryHTML += `</div></div>`;
+        container.insertAdjacentHTML('beforeend', categoryHTML);
+      }
+
+      document.getElementById("progress-modal").classList.add("active");
+    }
+
+    function closeProgressModal() {
+      document.getElementById("progress-modal").classList.remove("active");
+    }
+
+    function saveStudentProgress() {
+      const name = document.getElementById("progress-student-name").value;
+
+      // Собираем все включенные тумблеры
+      const checkboxes = document.querySelectorAll("#progress-elements-container .ios-toggle:checked");
+      const completedArray = Array.from(checkboxes).map(cb => cb.value);
+      const progressString = completedArray.join(', '); // склеиваем в строку
+
+      showLoader("Сохранение прогресса...");
+      closeProgressModal();
+
+      const formData = new FormData();
+      formData.append("action", "update_progress");
+      formData.append("name", name);
+      formData.append("progress", progressString);
+
+      fetch(URL_TRAIN, { method: "POST", body: formData })
+        .then(response => response.json())
+        .then(result => {
+          hideLoader();
+          showToast();
+          fetchData(); // перезагружаем данные, чтобы обновить локальную базу
+        })
+        .catch(error => {
+          hideLoader();
+          alert("❌ Ошибка сохранения прогресса.");
+        });
+    }
+    function getSafePhotoUrl(rawUrl) {
+      if (!rawUrl) return "";
+      let cleanUrl = rawUrl.toString().trim();
+      // Если это чистый ID (без http)
+      if (!cleanUrl.startsWith('http')) {
+        return `https://drive.google.com/thumbnail?id=${cleanUrl}&sz=w200`;
+      }
+      // Если это полная ссылка на Диск
+      const driveMatch = cleanUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/);
+      if (driveMatch) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w200`;
+      }
+      return cleanUrl;
+    }
+  </script>
+</body>
+
+</html>
