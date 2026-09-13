@@ -12,6 +12,31 @@
   <title>My finance</title>
 
   <style>
+    /* Исправляем цвет иконок и текста в нижнем меню для темной темы */
+    nav {
+background: rgba(255, 255, 255, 0.92) !important;
+  border-top-color: #c6c6c8 !important;
+    }
+
+    .nav-btn {
+      color: #8e8e93 !important;
+      /* Цвет неактивных элементов в темной теме */
+    }
+
+    .nav-btn.active {
+      color: var(--ios-blue) !important;
+    }
+
+    /* Принудительно задаем цвет обводки для всех иконок в навигации */
+    .nav-btn .nav-icon {
+      stroke: currentColor !important;
+    }
+
+    /* Если иконка Доходов использует заливку (fill), а не обводку (stroke) */
+    .nav-btn use[href="#icon-income"] {
+      fill: currentColor !important;
+    }
+
     .ios-list-title {
       text-align: center;
       color: #000;
@@ -28,64 +53,51 @@
       --text-muted: #8e8e93;
     }
 
+    /* Гарантируем, что все иконки в нижнем меню берут цвет текста кнопки */
+    .nav-btn .nav-icon {
+      stroke: currentColor !important;
+      fill: none;
+    }
+
+    /* Специально для иконки доходов, если она использует fill */
+    .nav-btn use[href="#icon-income"],
+    .nav-btn svg use[href*="income"] {
+      fill: currentColor !important;
+      stroke: none !important;
+    }
+
+    /* Цвет неактивных иконок в темной теме */
+    .nav-btn {
+      color: #8e8e93 !important;
+    }
+
+    /* Цвет активной иконки в темной теме */
+    .nav-btn.active {
+      color: var(--ios-blue) !important;
+    }
+
     @media (prefers-color-scheme: dark) {
-      :root {
-        --ios-bg: #000000;
-        --ios-gray: #1c1c1e;
-        --text-main: #ffffff;
-        --text-muted: #ebebf599;
+
+      /* Принудительно красим карточки, блоки аккордеона и списки в настройках в темно-серый */
+      .card,
+      .settings-item,
+      .accordion-item,
+      .setting-block,
+      .info-block {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
       }
 
-      .ios-form {
-        background: #1c1c1e !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-      }
-
-      .ios-form .accordion-header {
-        background: var(--ios-bg);
-        border: 1px solid #d1d1d6;
-      }
-
-      /* Оформление полей ввода цен */
-      .ios-list-item input[type="number"]:focus {
-        outline: none;
-        color: var(--ios-blue-active);
-      }
-
-
-
-      .toggle-wrapper {
-        background: #2c2c2e !important;
-        border-color: #38383a !important;
-      }
-
-      input,
-      select,
-      textarea,
-      output {
-        background: #2c2c2e !important;
-        color: white !important;
-        border-color: #38383a !important;
-      }
-
-      nav {
-        background: rgba(28, 28, 30, 0.92) !important;
-        border-top-color: #38383a !important;
-      }
-
-      .nav-btn.active>.nav-icon {
-        stroke: var(--ios-blue) !important;
-      }
-
-      .breakdown-bar-bg {
-        background: #2c2c2e !important;
-      }
-
-      .top-header {
-        background: rgba(28, 28, 30, 0.92) !important;
-        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+      /* Текст и иконки внутри этих блоков */
+      .card *,
+      .settings-item *,
+      .accordion-item *,
+      .setting-block * {
+        color: #ffffff !important;
       }
     }
+
+
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -660,7 +672,8 @@
       justify-content: space-between;
       align-items: center;
       padding: 18px 20px;
-      background: #ffffff;
+      background: var(--card-bg, #ffffff);
+      /* Автоматически меняет фон */
       border-radius: 14px;
       font-size: 17px;
       font-weight: 600;
@@ -672,13 +685,13 @@
     }
 
     .accordion-header:active {
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--card-active, rgba(0, 0, 0, 0.05));
     }
 
     .accordion-icon {
       width: 22px;
       height: 22px;
-      stroke: var(--text-muted);
+      stroke: var(--text-secondary, #8e8e93);
       transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
@@ -690,6 +703,7 @@
       display: none;
       padding: 0 4px 16px 4px;
       animation: fadeIn 0.3s ease;
+      color: var(--text-main);
     }
 
     .accordion-content.active {
@@ -827,6 +841,150 @@
     .ios-toggle:checked::after {
       transform: translateX(20px);
     }
+
+    @media (prefers-color-scheme: dark) {
+
+      /* Стили для всплывающего меню выбора разделов */
+      .dropdown-menu,
+      .menu-popup,
+      .popover,
+      .menu-box {
+        background-color: #2c2c2e !important;
+        color: #ffffff !important;
+        border-color: #38383a !important;
+      }
+
+      .dropdown-menu button,
+      .menu-popup a,
+      .menu-item {
+        color: #ffffff !important;
+      }
+
+      .dropdown-menu button:hover,
+      .menu-popup a:hover {
+        background-color: #3a3a3c !important;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .accordion-header {
+        background: #1c1c1e !important;
+        color: #ffffff !important;
+      }
+
+      .accordion-header:active {
+        background: #2c2c2e !important;
+      }
+
+      .accordion-content {
+        color: #ffffff !important;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-main: #000000;
+        --card-bg: #1c1c1e;
+        --text-main: #ffffff;
+        --text-secondary: #8e8e93;
+        --border-color: #38383a;
+      }
+
+      /* Общий фон и карточки в темной теме */
+      body {
+        background-color: var(--bg-main) !important;
+        color: var(--text-main) !important;
+      }
+
+      /* Поля ввода и модальные окна */
+      input,
+      select,
+      textarea {
+        background-color: #2c2c2e !important;
+        color: #ffffff !important;
+        border-color: var(--border-color) !important;
+      }
+
+
+
+      .ios-form {
+        background: #1c1c1e !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+      }
+
+      .ios-form .accordion-header {
+        background: var(--ios-bg);
+        border: 1px solid #d1d1d6;
+      }
+
+      /* Оформление полей ввода цен */
+      .ios-list-item input[type="number"]:focus {
+        outline: none;
+        color: var(--ios-blue-active);
+      }
+
+
+
+      .toggle-wrapper {
+        background: #2c2c2e !important;
+        border-color: #38383a !important;
+      }
+
+
+      nav {
+        background: rgba(28, 28, 30, 0.92) !important;
+        border-top-color: #38383a !important;
+      }
+
+      .nav-btn.active>.nav-icon {
+        stroke: var(--ios-blue) !important;
+      }
+
+      .breakdown-bar-bg {
+        background: #2c2c2e !important;
+      }
+
+      .top-header {
+        background: rgba(28, 28, 30, 0.92) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+      }
+
+      .accordion-content,
+      .form-container,
+      .settings-content,
+      .card {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+      }
+
+
+
+      /* Перекрашиваем все внутренние контейнеры карточек и форм в темный цвет */
+      .accordion-content>div,
+      .student-content,
+      .form-box,
+      .settings-card {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+      }
+
+      #student-form,
+      .student-modal-content {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+      }
+
+      #student-modal {
+        background: rgba(0, 0, 0, 0.8) !important;
+      }
+
+      .student-modal-content,
+      #student-form {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+      }
+
+    }
   </style>
 </head>
 
@@ -890,10 +1048,9 @@
           d="m24,4.5c0,.276-.224.5-.5.5h-3.5v3.5c0,.276-.224.5-.5.5s-.5-.224-.5-.5v-3.5h-3.5c-.276,0-.5-.224-.5-.5s.224-.5.5-.5h3.5V.5c0-.276.224-.5.5-.5s.5.224.5.5v3.5h3.5c.276,0,.5.224.5.5Zm-.563,2.51c-.266-.056-.533.121-.588.392l-.757,3.785c-.326,1.63-1.77,2.813-3.432,2.813H5.879l-1.25-9h7.871c.276,0,.5-.224.5-.5s-.224-.5-.5-.5H4.49l-.256-1.843c-.17-1.229-1.234-2.157-2.476-2.157H.5C.224,0,0,.224,0,.5s.224.5.5.5h1.259c.745,0,1.383.556,1.485,1.294l1.781,12.825c.308,2.212,2.225,3.881,4.457,3.881h10.018c.276,0,.5-.224.5-.5s-.224-.5-.5-.5h-10.018c-1.73,0-3.214-1.289-3.462-3h12.64c2.138,0,3.993-1.521,4.412-3.617l.757-3.785c.055-.271-.121-.534-.393-.588Zm-14.437,14.99c0,1.103-.897,2-2,2s-2-.897-2-2,.897-2,2-2,2,.897,2,2Zm-1,0c0-.551-.448-1-1-1s-1,.449-1,1,.448,1,1,1,1-.449,1-1Zm11,0c0,1.103-.897,2-2,2s-2-.897-2-2,.897-2,2-2,2,.897,2,2Zm-1,0c0-.551-.448-1-1-1s-1,.449-1,1,.448,1,1,1,1-.449,1-1Z" />
       </symbol>
       <!-- Иконка: Доход (Монетка со знаком доллара) -->
-      <symbol id="icon-income" viewBox="0 0 24 24">
+      <symbol id="icon-income" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.8"> 
         <path
           d="m19.5 4h-1.551c-.252-2.244-2.139-4-4.449-4h-3c-2.31 0-4.197 1.756-4.449 4h-1.551c-2.481 0-4.5 2.019-4.5 4.5v11c0 2.481 2.019 4.5 4.5 4.5h15c2.481 0 4.5-2.019 4.5-4.5v-11c0-2.481-2.019-4.5-4.5-4.5zm-9-3h3c1.76 0 3.221 1.306 3.464 3h-9.928c.243-1.694 1.704-3 3.464-3zm12.5 18.5c0 1.93-1.57 3.5-3.5 3.5h-15c-1.93 0-3.5-1.57-3.5-3.5v-11c0-1.93 1.57-3.5 3.5-3.5h15c1.93 0 3.5 1.57 3.5 3.5zm-7-3.126c0 1.448-1.178 2.626-2.626 2.626h-.874v1.5c0 .276-.224.5-.5.5s-.5-.224-.5-.5v-1.5h-.926c-.979 0-1.891-.526-2.381-1.375-.139-.238-.057-.545.182-.683.239-.141.545-.057.683.183.312.54.894.875 1.516.875h2.8c.896 0 1.626-.729 1.626-1.626 0-.803-.575-1.479-1.368-1.604l-3.423-.552c-1.28-.204-2.209-1.295-2.209-2.592 0-1.448 1.178-2.626 2.626-2.626h.874v-1.5c0-.276.224-.5.5-.5s.5.224.5.5v1.5h.926c.979 0 1.891.526 2.381 1.375.139.238.057.545-.182.683-.241.14-.546.056-.683-.183-.312-.54-.894-.875-1.516-.875h-2.8c-.896 0-1.626.729-1.626 1.626 0 .803.575 1.479 1.368 1.604l3.423.552c1.28.204 2.209 1.295 2.209 2.592z" />
-
       </symbol>
     </defs>
   </svg>
@@ -1030,15 +1187,19 @@
       </form>
     </div>
     <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
-<!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
     <div id="student-modal" class="student-modal">
       <div class="student-modal-content">
         <form id="student-form" onsubmit="saveStudentData(event)">
 
           <!-- Блок Фото: без слов, кликабельно само фото -->
-          <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; margin-top: 10px;">
-            <label for="edit-photo" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
-              <div id="modal-avatar-preview" class="student-avatar" style="width: 90px; height: 90px; font-size: 36px; border: 2px solid var(--ios-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">👤</div>
+          <div
+            style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; margin-top: 10px;">
+            <label for="edit-photo" style="cursor: pointer; transition: opacity 0.2s;"
+              onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+              <div id="modal-avatar-preview" class="student-avatar"
+                style="width: 90px; height: 90px; font-size: 36px; border: 2px solid var(--ios-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                👤</div>
             </label>
             <input type="file" id="edit-photo" accept="image/*" style="display: none;" onchange="previewPhoto(event)" />
           </div>
@@ -1047,22 +1208,26 @@
           <div class="form-group"><label>Email:</label><input type="email" id="edit-email" /></div>
           <div class="form-group"><label>Имя для квитанции:</label><input type="text" id="edit-hebrew-name" /></div>
           <div class="form-group"><label>Телефон:</label><input type="tel" id="edit-phone" /></div>
-          
+
           <!-- Умная форма здоровья: поле + динамическая иконка -->
           <div class="form-group">
             <label>Форма здоровья (PDF ссылка):</label>
             <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="url" id="edit-health" placeholder="Вставьте ссылку..." style="flex: 1;" oninput="updateHealthIcon()" />
-              <a id="health-link-btn" href="#" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--ios-gray); border-radius: 12px; text-decoration: none; flex-shrink: 0;">
-                
+              <input type="url" id="edit-health" placeholder="Вставьте ссылку..." style="flex: 1;"
+                oninput="updateHealthIcon()" />
+              <a id="health-link-btn" href="#" target="_blank"
+                style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--ios-gray); border-radius: 12px; text-decoration: none; flex-shrink: 0;">
+
                 <!-- Иконка: НЕТ ССЫЛКИ (перечеркнутый документ) -->
-                <svg id="health-icon-empty" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg id="health-icon-empty" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <line x1="3" y1="3" x2="21" y2="21"></line>
                 </svg>
-                
+
                 <!-- Иконка: ЕСТЬ ССЫЛКА (зеленый документ) -->
-                <svg id="health-icon-active" style="display: none;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg id="health-icon-active" style="display: none;" width="24" height="24" viewBox="0 0 24 24"
+                  fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
                   <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -1075,24 +1240,30 @@
 
           <div class="form-group"><label>Доп. информация:</label><textarea id="edit-info"></textarea></div>
           <div class="form-group"><label>Дата рождения:</label><input type="date" id="edit-dob" /></div>
-          
+
           <!-- Направления с новыми SVG иконками -->
           <div class="form-group">
             <label>Направления:</label>
             <div style="display: flex; gap: 15px; margin-top: 8px;">
               <label class="dir-label">
-                <input type="checkbox" value="Pole dance" class="dir-checkbox"> 
-                <svg class="dir-icon"><use href="#icon-train"></use></svg>
+                <input type="checkbox" value="Pole dance" class="dir-checkbox">
+                <svg class="dir-icon">
+                  <use href="#icon-train"></use>
+                </svg>
                 <span>Pole dance</span>
               </label>
               <label class="dir-label">
-                <input type="checkbox" value="Pole Exotic" class="dir-checkbox"> 
-                <svg class="dir-icon"><use href="#icon-exotic"></use></svg>
+                <input type="checkbox" value="Pole Exotic" class="dir-checkbox">
+                <svg class="dir-icon">
+                  <use href="#icon-exotic"></use>
+                </svg>
                 <span>Pole Exotic</span>
               </label>
               <label class="dir-label">
-                <input type="checkbox" value="Stretching" class="dir-checkbox"> 
-                <svg class="dir-icon"><use href="#icon-stretch"></use></svg>
+                <input type="checkbox" value="Stretching" class="dir-checkbox">
+                <svg class="dir-icon">
+                  <use href="#icon-stretch"></use>
+                </svg>
                 <span>Stretching</span>
               </label>
             </div>
@@ -1100,10 +1271,16 @@
 
           <input type="hidden" id="edit-original-name" />
 
-          <div class="modal-buttons-row" style="display: flex; flex-direction: row; gap: 8px; margin-top: 25px; width: 100%;">
-            <button type="button" class="apple-button" style="background: var(--ios-gray); color: var(--text-main); flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;" onclick="closeStudentModal()">Отмена</button>
-            <button type="submit" class="apple-button" style="flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;">Сохранить</button>
-            <button type="button" class="apple-button" style="background: #ff3b30; color: white; flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;" onclick="deleteStudentFromModal()">Удалить</button>
+          <div class="modal-buttons-row"
+            style="display: flex; flex-direction: row; gap: 8px; margin-top: 25px; width: 100%;">
+            <button type="button" class="apple-button"
+              style="background: var(--ios-gray); color: var(--text-main); flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;"
+              onclick="closeStudentModal()">Отмена</button>
+            <button type="submit" class="apple-button"
+              style="flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;">Сохранить</button>
+            <button type="button" class="apple-button"
+              style="background: #ff3b30; color: white; flex: 1; margin: 0; padding: 12px 2px; font-size: 14px;"
+              onclick="deleteStudentFromModal()">Удалить</button>
           </div>
         </form>
       </div>
@@ -1346,29 +1523,41 @@
           </svg>
         </div>
         <div id="acc-folders" class="accordion-content">
-          <div style="margin-bottom: 15px; background: var(--ios-bg); border-radius: 12px; overflow: hidden; border: 1px solid #d1d1d6; display: flex; flex-direction: column;">
-            
-            <a href="https://drive.google.com/drive/u/0/folders/1_fNYjd5yAbDdURQqTYl-e80y_qDPODKE" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+          <div
+            style="margin-bottom: 15px; background: var(--ios-bg); border-radius: 12px; overflow: hidden; border: 1px solid #d1d1d6; display: flex; flex-direction: column;">
+
+            <a href="https://drive.google.com/drive/u/0/folders/1_fNYjd5yAbDdURQqTYl-e80y_qDPODKE" target="_blank"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;"
+              onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
               <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">📄 Декларации здоровья</span>
               <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
             </a>
-            
-            <a href="https://drive.google.com/drive/u/0/folders/1ZFZ2K0WTsxdpTzVtwnueVaGkyzjCclbq" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+
+            <a href="https://drive.google.com/drive/u/0/folders/1ZFZ2K0WTsxdpTzVtwnueVaGkyzjCclbq" target="_blank"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;"
+              onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
               <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">🖼 Аватарки</span>
               <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
             </a>
 
-            <a href="https://drive.google.com/drive/u/0/folders/1nCXBP__w-0O4t19haBh73_eyj52X8UrC" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+            <a href="https://drive.google.com/drive/u/0/folders/1nCXBP__w-0O4t19haBh73_eyj52X8UrC" target="_blank"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;"
+              onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
               <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">🤸‍♀️ Элементы</span>
               <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
             </a>
 
-            <a href="https://drive.google.com/drive/u/0/folders/1ATM4B8A84efzEA9to5kdKszma_PSt8ai" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+            <a href="https://drive.google.com/drive/u/0/folders/1ATM4B8A84efzEA9to5kdKszma_PSt8ai" target="_blank"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; border-bottom: 1px solid #d1d1d6; background: transparent; transition: background 0.2s;"
+              onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
               <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">🧾 Квитанции</span>
               <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
             </a>
 
-            <a href="https://docs.google.com/spreadsheets/d/13aZbewOnoFq45Altz0YV8Qv1Omr1DkQDbfoaHNRwaLA/edit" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; background: transparent; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+            <a href="https://docs.google.com/spreadsheets/d/13aZbewOnoFq45Altz0YV8Qv1Omr1DkQDbfoaHNRwaLA/edit"
+              target="_blank"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; background: transparent; transition: background 0.2s;"
+              onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
               <span style="font-size: 16px; font-weight: 500; color: var(--ios-blue);">📊 Гугл таблица (База)</span>
               <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
             </a>
@@ -2183,13 +2372,13 @@
       const student = window.studentsDatabase[name] || {};
       document.getElementById("edit-original-name").value = name;
       document.getElementById("edit-name").value = name;
- 
+
 
       document.getElementById("edit-email").value = student.email || "";
       document.getElementById("edit-hebrew-name").value = student.hebrewName || "";
       document.getElementById("edit-phone").value = student.phone || "";
       document.getElementById("edit-health").value = student.health || "";
-      updateHealthIcon(); 
+      updateHealthIcon();
       document.getElementById("edit-info").value = student.info || "";
 
       // Подставляем дату рождения
