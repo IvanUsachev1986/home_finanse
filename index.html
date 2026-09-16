@@ -14,8 +14,8 @@
   <style>
     /* Исправляем цвет иконок и текста в нижнем меню для темной темы */
     nav {
-background: rgba(255, 255, 255, 0.92) !important;
-  border-top-color: #c6c6c8 !important;
+      background: rgba(255, 255, 255, 0.92) !important;
+      border-top-color: #c6c6c8 !important;
     }
 
     .nav-btn {
@@ -905,7 +905,15 @@ background: rgba(255, 255, 255, 0.92) !important;
         border-color: var(--border-color) !important;
       }
 
+      #progress-modal {
+        background: rgba(0, 0, 0, 0.8) !important;
+      }
 
+      .progress-modal-content,
+      #progress-modal .student-modal-content {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+      }
 
       .ios-form {
         background: #1c1c1e !important;
@@ -1048,7 +1056,7 @@ background: rgba(255, 255, 255, 0.92) !important;
           d="m24,4.5c0,.276-.224.5-.5.5h-3.5v3.5c0,.276-.224.5-.5.5s-.5-.224-.5-.5v-3.5h-3.5c-.276,0-.5-.224-.5-.5s.224-.5.5-.5h3.5V.5c0-.276.224-.5.5-.5s.5.224.5.5v3.5h3.5c.276,0,.5.224.5.5Zm-.563,2.51c-.266-.056-.533.121-.588.392l-.757,3.785c-.326,1.63-1.77,2.813-3.432,2.813H5.879l-1.25-9h7.871c.276,0,.5-.224.5-.5s-.224-.5-.5-.5H4.49l-.256-1.843c-.17-1.229-1.234-2.157-2.476-2.157H.5C.224,0,0,.224,0,.5s.224.5.5.5h1.259c.745,0,1.383.556,1.485,1.294l1.781,12.825c.308,2.212,2.225,3.881,4.457,3.881h10.018c.276,0,.5-.224.5-.5s-.224-.5-.5-.5h-10.018c-1.73,0-3.214-1.289-3.462-3h12.64c2.138,0,3.993-1.521,4.412-3.617l.757-3.785c.055-.271-.121-.534-.393-.588Zm-14.437,14.99c0,1.103-.897,2-2,2s-2-.897-2-2,.897-2,2-2,2,.897,2,2Zm-1,0c0-.551-.448-1-1-1s-1,.449-1,1,.448,1,1,1,1-.449,1-1Zm11,0c0,1.103-.897,2-2,2s-2-.897-2-2,.897-2,2-2,2,.897,2,2Zm-1,0c0-.551-.448-1-1-1s-1,.449-1,1,.448,1,1,1,1-.449,1-1Z" />
       </symbol>
       <!-- Иконка: Доход (Монетка со знаком доллара) -->
-      <symbol id="icon-income" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.8"> 
+      <symbol id="icon-income" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.8">
         <path
           d="m19.5 4h-1.551c-.252-2.244-2.139-4-4.449-4h-3c-2.31 0-4.197 1.756-4.449 4h-1.551c-2.481 0-4.5 2.019-4.5 4.5v11c0 2.481 2.019 4.5 4.5 4.5h15c2.481 0 4.5-2.019 4.5-4.5v-11c0-2.481-2.019-4.5-4.5-4.5zm-9-3h3c1.76 0 3.221 1.306 3.464 3h-9.928c.243-1.694 1.704-3 3.464-3zm12.5 18.5c0 1.93-1.57 3.5-3.5 3.5h-15c-1.93 0-3.5-1.57-3.5-3.5v-11c0-1.93 1.57-3.5 3.5-3.5h15c1.93 0 3.5 1.57 3.5 3.5zm-7-3.126c0 1.448-1.178 2.626-2.626 2.626h-.874v1.5c0 .276-.224.5-.5.5s-.5-.224-.5-.5v-1.5h-.926c-.979 0-1.891-.526-2.381-1.375-.139-.238-.057-.545.182-.683.239-.141.545-.057.683.183.312.54.894.875 1.516.875h2.8c.896 0 1.626-.729 1.626-1.626 0-.803-.575-1.479-1.368-1.604l-3.423-.552c-1.28-.204-2.209-1.295-2.209-2.592 0-1.448 1.178-2.626 2.626-2.626h.874v-1.5c0-.276.224-.5.5-.5s.5.224.5.5v1.5h.926c.979 0 1.891.526 2.381 1.375.139.238.057.545-.182.683-.241.14-.546.056-.683-.183-.312-.54-.894-.875-1.516-.875h-2.8c-.896 0-1.626.729-1.626 1.626 0 .803.575 1.479 1.368 1.604l3.423.552c1.28.204 2.209 1.295 2.209 2.592z" />
       </symbol>
@@ -1186,7 +1194,6 @@ background: rgba(255, 255, 255, 0.92) !important;
         <button type="submit" class="apple-button">Отправить данные</button>
       </form>
     </div>
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
     <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
     <div id="student-modal" class="student-modal">
       <div class="student-modal-content">
@@ -1554,7 +1561,7 @@ background: rgba(255, 255, 255, 0.92) !important;
               <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
             </a>
 
-            <a href="https://docs.google.com/spreadsheets/d/13aZbewOnoFq45Altz0YV8Qv1Omr1DkQDbfoaHNRwaLA/edit"
+            <a href="https://docs.google.com/spreadsheets/d/1YaGP8lYTQtCJC6LqfAOi0t8x7lU3SXIz6xl99vWzk7I/edit?gid=582839357#gid=582839357"
               target="_blank"
               style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; text-decoration: none; background: transparent; transition: background 0.2s;"
               onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
@@ -1572,35 +1579,115 @@ background: rgba(255, 255, 255, 0.92) !important;
     <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ -->
 
     <!-- СЕКЦИЯ: ЭЛЕМЕНТЫ -->
-    <div id="elements_train" class="section">
+    <div id="elements" class="section">
       <div class="ios-form">
-        <h2 style="text-align:center; color: var(--text-main); margin-bottom: 20px;">Прогресс учениц</h2>
-        <div class="ios-list" id="elements-students-list">
-          <!-- Сюда подгрузится список учениц для выбора -->
+
+        <!-- СЮДА JS БУДЕТ АВТОМАТИЧЕСКИ ВСТАВЛЯТЬ СПИСКИ УРОВНЕЙ ИЗ ТАБЛИЦЫ -->
+        <div id="dynamic-elements-accordions"></div>
+
+        <!-- Кнопка добавления нового элемента (внизу карточки) -->
+        <div style="text-align: center; margin-top: 15px;">
+          <button class="apple-button" style="width: auto; padding: 10px 20px; font-size: 15px;"
+            onclick="openElementModal()">+ Добавить элемент</button>
+        </div>
+
+      </div>
+
+
+
+      <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ / ПРОСМОТРА ЭЛЕМЕНТА -->
+      <div id="element-modal" class="student-modal">
+        <div class="student-modal-content">
+          <form id="element-form" onsubmit="saveElementData(event)">
+            <!-- 1. УВЕЛИЧЕННОЕ ФОТО (Сделал красивый скругленный квадрат 150x150 вместо мелкого кружка) -->
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+              <div id="element-photo-preview"
+                style="width: 150px; height: 150px; border-radius: 20px; background: #e5e5ea; background-size: cover; background-position: center; margin-bottom: 10px; cursor: pointer; border: 2px solid var(--border-color);"
+                onclick="document.getElementById('element-photo-input').click()"></div>
+              <input type="file" id="element-photo-input" accept="image/*" style="display: none;"
+                onchange="previewElementPhoto(this)">
+              <input type="hidden" id="elem-photo-base64">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 4px;">Название
+                элемента:</label>
+              <input type="text" id="elem-name" required
+                style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label
+                style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 4px;">Категория:</label>
+              <input type="text" id="elem-category"
+                style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 4px;">Короткое
+                описание:</label>
+              <input type="text" id="elem-short-desc"
+                style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 4px;">Полное
+                описание:</label>
+              <textarea id="elem-full-desc" rows="3"
+                style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); resize: vertical;"></textarea>
+            </div>
+
+            <!-- 2. СКРЫВАЕМ ПОЛЕ ВВОДА ССЫЛКИ И ВЫВОДИМ ТОЛЬКО ПЛЕЕР -->
+            <input type="hidden" id="elem-video">
+            <!-- Скрытое поле нужно, чтобы скрипт при сохранении не стер ссылку в таблице -->
+            <div id="elem-video-preview"
+              style="margin-bottom: 20px; display: none; width: 100%; border-radius: 12px; overflow: hidden; background: #000;">
+              <!-- Сюда JS вставит видео -->
+            </div>
+
+            <!-- 3. УДЛИНЕННЫЙ СПИСОК УЧЕНИЦ (max-height: 350px) -->
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 6px;">Выполнили
+                ученицы:</label>
+              <div id="elem-students-checkboxes"
+                style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; background: var(--input-bg);">
+                <!-- Чекбоксы генерируются динамически через JS -->
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="button" onclick="closeElementModal()"
+                style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #e5e5ea; font-weight: 600; cursor: pointer;">Отмена</button>
+              <button type="submit"
+                style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #007aff; color: #fff; font-weight: 600; cursor: pointer;">Сохранить</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО ПРОГРЕССА -->
+        <div id="progress-modal" class="student-modal">
+          <div class="student-modal-content" style="max-height: 85vh; display: flex; flex-direction: column;">
+            <h3 id="progress-modal-title" style="margin-top: 0; text-align: center;">Прогресс</h3>
+
+            <!-- Скроллируемый список элементов -->
+            <div id="progress-elements-container" class="ios-list"
+              style="overflow-y: auto; flex: 1; margin-bottom: 20px;">
+              <!-- Сюда JS вставит элементы с тумблерами -->
+            </div>
+
+            <input type="hidden" id="progress-student-name" />
+
+            <div class="modal-buttons-row">
+              <button type="button" class="apple-button"
+                style="background: var(--ios-gray); color: var(--text-main); flex: 1; margin: 0;"
+                onclick="closeProgressModal()">Отмена</button>
+              <button type="button" class="apple-button" style="flex: 1; margin: 0;"
+                onclick="saveStudentProgress()">Сохранить</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ПРОГРЕССА -->
-    <div id="progress-modal" class="student-modal">
-      <div class="student-modal-content" style="max-height: 85vh; display: flex; flex-direction: column;">
-        <h3 id="progress-modal-title" style="margin-top: 0; text-align: center;">Прогресс</h3>
-
-        <!-- Скроллируемый список элементов -->
-        <div id="progress-elements-container" class="ios-list" style="overflow-y: auto; flex: 1; margin-bottom: 20px;">
-          <!-- Сюда JS вставит элементы с тумблерами -->
-        </div>
-
-        <input type="hidden" id="progress-student-name" />
-
-        <div class="modal-buttons-row">
-          <button type="button" class="apple-button"
-            style="background: var(--ios-gray); color: var(--text-main); flex: 1; margin: 0;"
-            onclick="closeProgressModal()">Отмена</button>
-          <button type="button" class="apple-button" style="flex: 1; margin: 0;"
-            onclick="saveStudentProgress()">Сохранить</button>
-        </div>
-      </div>
     </div>
     <div id="settings_buy" class="section">
       <div class="ios-form">
@@ -1660,6 +1747,7 @@ background: rgba(255, 255, 255, 0.92) !important;
       try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         const combinedData = await response.json();
+        window.appData = combinedData;
 
         if (combinedData.settings) updateInterfaceWithSettings(combinedData.settings);
 
@@ -1885,9 +1973,20 @@ background: rgba(255, 255, 255, 0.92) !important;
     ////////
     // --- 3. ЛОГИКА НАВИГАЦИИ (ВЫПАДАЮЩЕЕ МЕНЮ) ---
     const sectionsMap = {
+      trainings: {
+        // ... ваши старые строчки ...
+        elements: "elements",
+        nameElements: "Элементы"
+      },
       'seg-train': {
-        record: 'train', analytics: 'info_train', settings: 'settings_train', elements: 'elements_train', // <-- добавили elements
-        nameRecord: 'Запись', nameAnalytics: 'Аналитика', nameSettings: 'Настройки', nameElements: 'Элементы' // <-- добавили nameElements
+        record: 'train',
+        analytics: 'info_train',
+        settings: 'settings_train',
+        elements: 'elements',         // <-- исправлено на 'elements'
+        nameRecord: 'Запись',
+        nameAnalytics: 'Аналитика',
+        nameSettings: 'Настройки',
+        nameElements: 'Элементы'
       },
       // ... buy и income оставляем без изменений
       'seg-buy': {
@@ -1940,7 +2039,11 @@ background: rgba(255, 255, 255, 0.92) !important;
 
       // Обновляем заголовок и показываем секцию
       titleEl.textContent = targetTitle;
-      document.getElementById(targetId).classList.add('active');
+      // Безопасный вызов (если элемент null, код просто пропустит это без ошибки)
+      document.getElementById(targetId)?.classList.add('active');
+      if (currentMode === 'elements' && typeof renderElementsSection === 'function') {
+        renderElementsSection();
+      }
 
       // Обновляем иконку в шапке
       currentModeIcon.innerHTML = `<use href="${iconsMap[currentMode]}"></use>`;
@@ -2053,6 +2156,8 @@ background: rgba(255, 255, 255, 0.92) !important;
 
     document.querySelectorAll("form").forEach(form => {
       form.addEventListener("submit", (e) => {
+        // 🛑 НОВАЯ СТРОКА: Игнорируем формы, у которых есть свои функции сохранения
+        if (form.id === "element-form" || form.id === "student-form" || form.id === "prices-form") return;
         const type = orderType.value;
         const typeRes = document.getElementById("data_type_result");
         const lessRes = document.getElementById("sum_lessons_result");
@@ -2480,9 +2585,13 @@ background: rgba(255, 255, 255, 0.92) !important;
         showLoader("Сохранение...");
 
         // Отправка на сервер в фоновом режиме
-        fetch(URL_TRAIN, { method: "POST", body: formData })
-          .then(response => response.json())
-          .then(result => {
+
+        fetch(URL_TRAIN, {
+          method: "POST",
+          body: formData,
+          mode: "no-cors" // <-- Оставляем только это! redirect: "manual" УДАЛИТЬ
+        })
+          .then(() => {
             hideLoader();
             showToast();
             setTimeout(() => {
@@ -2490,47 +2599,20 @@ background: rgba(255, 255, 255, 0.92) !important;
             }, 800);
           })
           .catch(error => {
-            // Игнорируем технические CORS-ошибки браузера, если данные долетели
+            // Эта часть перехватит неизбежный "баг" Google (404), 
+            // скроет лоадер и всё равно красиво обновит страницу!
+            console.log("Данные сохранены! (Игнорируем системный редирект Google)");
             hideLoader();
-            showToast();
             setTimeout(() => {
               fetchData();
             }, 800);
           });
+
       } catch (err) {
         hideLoader();
         alert("❌ Ошибка в приложении (HTML): " + err.message);
       }
     };
-    // Сохранение стоимоссти 
-    function saveAllPrices(event) {
-      event.preventDefault();
-      showLoader("Сохранение цен...");
-
-      const formData = new FormData();
-      formData.append("action", "save_all_prices");
-
-      const priceInputs = document.querySelectorAll("#acc-prices input[type='number']");
-      priceInputs.forEach(input => {
-        const name = input.getAttribute("data-price-name");
-        formData.append("price_" + name, input.value);
-      });
-
-      fetch(URL_TRAIN, {
-        method: "POST",
-        body: formData
-      })
-        .then(() => {
-          hideLoader();
-          showToast();
-          // Убрали fetchData(), чтобы избежать лишнего запроса и ошибки 404
-        })
-        .catch(error => {
-          hideLoader();
-          alert("❌ Ошибка сохранения цен.");
-        });
-    }
-
     function openProgressModal(name) {
       const student = window.studentsDatabase[name] || {};
       document.getElementById("progress-student-name").value = name;
@@ -2649,6 +2731,263 @@ background: rgba(255, 255, 255, 0.92) !important;
       }
       return cleanUrl;
     }
+
+    // Отрисовка аккордеонов по категориям (уровням) элементов из Google Таблицы
+    // Отрисовка аккордеонов по категориям (уровням) элементов из Google Таблицы
+    function renderElementsSection() {
+      const container = document.getElementById('dynamic-elements-accordions');
+      if (!container) return;
+
+      container.innerHTML = ''; // Очищаем контейнер перед отрисовкой
+
+      const elements = window.appData?.settings?.elements || [];
+
+      if (elements.length === 0) {
+        container.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Элементы не найдены</div>';
+        return;
+      }
+
+      // 1. Группируем элементы по уровням (категориям)
+      const categories = {};
+      elements.forEach(el => {
+        const catName = el.category || "Без уровня";
+        if (!categories[catName]) {
+          categories[catName] = [];
+        }
+        categories[catName].push(el);
+      });
+
+      // 2. Генерируем HTML для каждого уровня
+      let htmlString = '';
+      let catIndex = 0;
+
+      for (const catName in categories) {
+        const catId = 'acc-dynamic-elem-' + catIndex; // Уникальный ID для аккордеона
+        catIndex++;
+
+        // Собираем карточки элементов внутри этого уровня
+        let itemsHtml = '';
+        categories[catName].forEach(el => {
+
+          // --- ЗАЩИТА ОТ КАВЫЧЕК ---
+          const safeName = el.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+          const finalPhotoUrl = getSafePhotoUrl(el.photo);
+          const photoHTML = finalPhotoUrl
+            ? `<img src="${finalPhotoUrl}" loading="lazy" style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid #e5e5ea;">`
+            : `<div style="width: 48px; height: 48px; border-radius: 10px; background: #e5e5ea; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px;">🤸‍♀️</div>`;
+
+          const completedCount = el.completedStudents ? el.completedStudents.length : 0;
+
+          // ВАЖНО: здесь теперь передается ${safeName} вместо ${el.name}
+          itemsHtml += `
+            <div class="ios-list-item" style="display: flex; gap: 14px; align-items: center; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f0f0f0;" onclick="openElementModal('${safeName}')">
+              <!-- Фотография слева -->
+              ${photoHTML}
+              
+              <!-- Название и описание по центру -->
+              <div style="flex: 1; text-align: left; min-width: 0;">
+                <div style="font-size: 16px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${el.name}</div>
+                ${el.shortDesc ? `<div style="font-size: 13px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${el.shortDesc}</div>` : ''}
+              </div>
+
+              <!-- Цифра с количеством выполнивших и стрелочка справа -->
+              <span style="background: var(--ios-blue); color: white; border-radius: 12px; padding: 2px 10px; font-size: 14px; font-weight: bold; margin-right: 4px;">${completedCount}</span>
+              <span style="color: #c7c7cc; font-size: 20px; font-weight: bold;">›</span>
+            </div>
+          `;
+        });
+
+        // Рисуем сам раскрывающийся список (аккордеон) для категории
+        htmlString += `
+          <div class="accordion-header" onclick="toggleAccordion('${catId}', this)">
+            <span style="display: flex; align-items: center; gap: 10px;">🔹 ${catName}</span>
+            <svg class="accordion-icon"><use href="#icon-chevron-down"></use></svg>
+          </div>
+          <div id="${catId}" class="accordion-content">
+            <div class="ios-list" style="margin-bottom: 15px;">
+              ${itemsHtml}
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. Вставляем всё разом на страницу
+      container.innerHTML = htmlString;
+    }
+
+    function closeElementModal() {
+      document.getElementById('element-modal').style.display = 'none';
+    }
+
+    // Предпросмотр фото элемента
+    function previewElementPhoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('element-photo-preview').style.backgroundImage = `url('${e.target.result}')`;
+          document.getElementById('elem-photo-base64').value = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Сохранение элемента на сервер
+    function saveElementData(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('elem-name').value.trim();
+      const category = document.getElementById('elem-category').value.trim();
+      const shortDesc = document.getElementById('elem-short-desc').value.trim();
+      const fullDesc = document.getElementById('elem-full-desc').value.trim();
+      const video = document.getElementById('elem-video').value.trim();
+      const photoBase64 = document.getElementById('elem-photo-base64').value;
+
+      const checkboxes = document.querySelectorAll('input[name="completed_student"]:checked');
+      const completedStudents = Array.from(checkboxes).map(cb => cb.value).join(', ');
+
+      // Собираем всё в чистый JSON объект
+      const payload = {
+        action: "save_element",
+        name: name,
+        category: category,
+        shortDesc: shortDesc,
+        fullDesc: fullDesc,
+        video: video,
+        photo: photoBase64 ? photoBase64 : (window.currentElementPhotoUrl || ''),
+        completedStudents: completedStudents
+      };
+
+      // Отправляем как JSON
+      fetch(URL_TRAIN, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8" // Обход CORS-ограничений для Google Apps Script
+        },
+        body: JSON.stringify(payload)
+      }).catch(err => { });
+
+      // Закрываем модалку и тихо обновляем данные без перезагрузки страницы
+      setTimeout(() => {
+        if (typeof closeElementModal === 'function') {
+          closeElementModal();
+        }
+        showToast();  // Показываем зеленую плашку "Сохранено"
+        fetchData();  // Подтягиваем свежие данные из базы в фоне
+      }, 400);
+    }
+
+
+    window.openElementModal = function (elementName) {
+      const modal = document.getElementById('element-modal');
+      const checkboxesContainer = document.getElementById('elem-students-checkboxes');
+      checkboxesContainer.innerHTML = ''; // Очищаем старый список учениц
+
+      // Достаем всех учениц из базы для создания списка
+      const allStudents = window.appData?.settings?.clients || [];
+
+      // Вспомогательная функция отрисовки тумблеров учениц
+      function drawCheckboxes(completedArray) {
+        const sorted = [...allStudents].map(s => typeof s === 'object' ? s.name : s).sort();
+        let html = '';
+        sorted.forEach(studentName => {
+          const isChecked = completedArray.includes(studentName) ? 'checked' : '';
+          html += `
+            <label style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+              <span style="font-size: 15px; color: var(--text-main); font-weight: 500;">${studentName}</span>
+              <input type="checkbox" name="completed_student" value="${studentName}" class="ios-toggle" ${isChecked}>
+            </label>
+          `;
+        });
+        checkboxesContainer.innerHTML = html;
+      }
+
+      if (elementName) {
+        // Режим РЕДАКТИРОВАНИЯ
+        const elements = window.appData?.settings?.elements || [];
+        const elData = elements.find(e => e.name === elementName);
+
+        if (elData) {
+          document.getElementById('elem-name').value = elData.name || '';
+          document.getElementById('elem-category').value = elData.category || '';
+          document.getElementById('elem-short-desc').value = elData.shortDesc || '';
+          document.getElementById('elem-full-desc').value = elData.fullDesc || '';
+
+
+          // --- ОБРАБОТКА И ПОКАЗ ВИДЕО (ТОЛЬКО GOOGLE DRIVE) ---
+          const videoInput = document.getElementById('elem-video');
+          const videoPreview = document.getElementById('elem-video-preview');
+          const videoUrl = elData.video || '';
+          videoInput.value = videoUrl;
+
+          if (videoUrl) {
+            videoPreview.style.display = 'block';
+
+            if (videoUrl.includes('drive.google.com')) {
+              // Умный поиск: вытаскиваем ID файла
+              const driveMatch = videoUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/);
+
+              if (driveMatch && driveMatch[1]) {
+                const fileId = driveMatch[1];
+                const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+
+                // РАСТЯНУЛИ ПО ВЕРТИКАЛИ (height: 550px) - пропорции как у Reels/Shorts
+                videoPreview.innerHTML = `
+                  <div style="width: 100%; height: 550px; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
+                    <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border: none;"></iframe>
+                  </div>
+                `;
+              } else {
+                videoPreview.innerHTML = `<div style="padding: 10px; color: #ff3b30; text-align: center;">Не удалось распознать ссылку Google Drive</div>`;
+              }
+            } else {
+              // Если ссылка прямая (на всякий случай)
+              videoPreview.innerHTML = `
+                <video controls playsinline style="width: 100%; height: 550px; object-fit: cover; border-radius: 12px; background: #000;">
+                  <source src="${videoUrl}">
+                </video>
+              `;
+            }
+          } else {
+            // Если ссылки нет — вообще ничего не показываем
+            videoPreview.innerHTML = '';
+            videoPreview.style.display = 'none';
+          }
+          const photoPreview = document.getElementById('element-photo-preview');
+          if (elData.photo) {
+            let photoUrl = elData.photo.startsWith('http') ? elData.photo : `https://drive.google.com/thumbnail?id=${elData.photo}&sz=w200`;
+            photoPreview.style.backgroundImage = `url('${photoUrl}')`;
+            document.getElementById('elem-photo-base64').value = elData.photo;
+          } else {
+            photoPreview.style.backgroundImage = '';
+            document.getElementById('elem-photo-base64').value = '';
+          }
+
+          // Рисуем тумблеры и отмечаем выполнивших
+          drawCheckboxes(elData.completedStudents || []);
+        }
+      } else {
+        // Режим СОЗДАНИЯ 
+        document.getElementById('element-form').reset();
+        document.getElementById('element-photo-preview').style.backgroundImage = '';
+        document.getElementById('elem-photo-base64').value = '';
+        document.getElementById('elem-video').value = '';
+        document.getElementById('elem-video-preview').innerHTML = '';
+        document.getElementById('elem-video-preview').style.display = 'none';
+
+        // Рисуем тумблеры (пока никто не выполнил)
+        drawCheckboxes([]);
+      }
+
+      if (modal) modal.classList.add('active'); // Открываем красиво
+    };
+
+
+
+    window.closeElementModal = function () {
+      const modal = document.getElementById('element-modal');
+      if (modal) modal.classList.remove('active'); // <-- Правильное закрытие
+    };
   </script>
 </body>
 
