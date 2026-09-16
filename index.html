@@ -2922,20 +2922,23 @@
 
           if (videoUrl) {
             videoPreview.style.display = 'block';
-
+            
             if (videoUrl.includes('drive.google.com')) {
               // Умный поиск: вытаскиваем ID файла
               const driveMatch = videoUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/);
 
               if (driveMatch && driveMatch[1]) {
                 const fileId = driveMatch[1];
-                const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
 
-                // РАСТЯНУЛИ ПО ВЕРТИКАЛИ (height: 550px) - пропорции как у Reels/Shorts
+                // ИСПРАВЛЕНИЕ: export=view заставляет Гугл отдавать видео для просмотра, а не для скачивания
+                const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+
+                // Убрали type="video/mp4", чтобы браузер сам понял формат (mov, mp4 и т.д.)
                 videoPreview.innerHTML = `
-                  <div style="width: 100%; height: 550px; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
-                    <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border: none;"></iframe>
-                  </div>
+                  <video controls playsinline preload="metadata" style="width: 100%; height: 550px; border-radius: 12px; background: #000; outline: none; object-fit: cover;">
+                    <source src="${directUrl}">
+                    Ваш браузер не поддерживает видео.
+                  </video>
                 `;
               } else {
                 videoPreview.innerHTML = `<div style="padding: 10px; color: #ff3b30; text-align: center;">Не удалось распознать ссылку Google Drive</div>`;
