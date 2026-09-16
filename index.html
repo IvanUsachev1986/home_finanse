@@ -2923,27 +2923,26 @@
           if (videoUrl) {
             videoPreview.style.display = 'block';
             
-            if (videoUrl.includes('drive.google.com')) {
+                        if (videoUrl.includes('drive.google.com')) {
               // Умный поиск: вытаскиваем ID файла
               const driveMatch = videoUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/);
-
+              
               if (driveMatch && driveMatch[1]) {
                 const fileId = driveMatch[1];
-
-                // ИСПРАВЛЕНИЕ: export=view заставляет Гугл отдавать видео для просмотра, а не для скачивания
-                const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
-
-                // Убрали type="video/mp4", чтобы браузер сам понял формат (mov, mp4 и т.д.)
+                // Используем официальную ссылку предпросмотра Google Drive
+                const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+                
+                // Аккуратный плеер с правильной пропорцией, который никогда не ломается
                 videoPreview.innerHTML = `
-                  <video controls playsinline preload="metadata" style="width: 100%; height: 550px; border-radius: 12px; background: #000; outline: none; object-fit: cover;">
-                    <source src="${directUrl}">
-                    Ваш браузер не поддерживает видео.
-                  </video>
+                  <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
+                    <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border: none;"></iframe>
+                  </div>
                 `;
               } else {
                 videoPreview.innerHTML = `<div style="padding: 10px; color: #ff3b30; text-align: center;">Не удалось распознать ссылку Google Drive</div>`;
               }
             } else {
+
               // Если ссылка прямая (на всякий случай)
               videoPreview.innerHTML = `
                 <video controls playsinline style="width: 100%; height: 550px; object-fit: cover; border-radius: 12px; background: #000;">
