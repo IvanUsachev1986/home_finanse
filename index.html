@@ -1191,6 +1191,9 @@
         <input type="hidden" id="sum_lessons_result" name="sum_lessons_result" value="" />
         <input type="hidden" id="sum_money_result" name="sum_money_result" value="" />
 
+        <!-- НОВОЕ: Говорим серверу, что именно нужно сделать с этими данными -->
+        <input type="hidden" name="action" value="save_record" />
+
         <button type="submit" class="apple-button">Отправить данные</button>
       </form>
     </div>
@@ -2135,6 +2138,7 @@
       }
     });
 
+
     // ОТПРАВКА ФОРМ
     async function sendFormData(e, url) {
       e.preventDefault();
@@ -2143,12 +2147,21 @@
 
       showLoader("Отправка...");
       try {
-        await fetch(url, { method: "POST", body: formData });
+        await fetch(url, {
+          method: "POST",
+          body: formData,
+          mode: "no-cors" // Защита от блокировок CORS (Google редиректов) на мобильных
+        });
         e.target.reset();
         showToast();
-        fetchData();
+
+        // Даем серверам Гугла 800 миллисекунд на запись, прежде чем скачивать новые данные
+        setTimeout(() => {
+          fetchData();
+        }, 800);
       } catch (error) {
-        alert("❌ Ошибка отправки.");
+        console.error("Ошибка сети:", error);
+        alert("❌ Ошибка отправки. Проверьте интернет.");
       } finally {
         hideLoader();
       }
@@ -2914,44 +2927,57 @@
           document.getElementById('elem-full-desc').value = elData.fullDesc || '';
 
 
-          // --- ОБРАБОТКА И ПОКАЗ ВИДЕО (ТОЛЬКО GOOGLE DRIVE) ---
+          // --- ОБРАБОТКА И ПОКАЗ ВИДЕО ---
           const videoInput = document.getElementById('elem-video');
           const videoPreview = document.getElementById('elem-video-preview');
-          const videoUrl = elData.video || '';
+          const videoUrl = elData.video ? elData.video.trim() : '';
           videoInput.value = videoUrl;
 
           if (videoUrl) {
             videoPreview.style.display = 'block';
-            
-                        if (videoUrl.includes('drive.google.com')) {
-              // Умный поиск: вытаскиваем ID файла
+
+            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+              // --- ИДЕАЛЬНЫЙ ВАРИАНТ: YOUTUBE ---
+              let ytId = "";
+              if (videoUrl.includes('youtu.be/')) ytId = videoUrl.split('youtu.be/')[1].split(/[?#]/)[0];
+              else if (videoUrl.includes('v=')) ytId = videoUrl.split('v=')[1].split(/[&#]/)[0];
+
+              videoPreview.innerHTML = `
+                <div style="width: 100%; height: 500px; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
+                  <iframe src="https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1&playsinline=1" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border: none;"></iframe>
+                </div>
+              `;
+
+            } else if (videoUrl.includes('drive.google.com')) {
+              // --- GOOGLE ДИСК С ХАКОМ МАСШТАБА ---
               const driveMatch = videoUrl.match(/(?:id=|folders\/|d\/)([\w-]+)/);
-              
+
               if (driveMatch && driveMatch[1]) {
                 const fileId = driveMatch[1];
-                // Используем официальную ссылку предпросмотра Google Drive
                 const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-                
-                // Аккуратный плеер с правильной пропорцией, который никогда не ломается
+
+                // ХАК: Делаем окно в 2 раза больше (200%), чтобы Гугл включил мелкие кнопки, 
+                // и сжимаем его в 2 раза (scale: 0.5) для нашего экрана телефона.
                 videoPreview.innerHTML = `
-                  <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
-                    <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border: none;"></iframe>
+                  <div style="width: 100%; height: 500px; border-radius: 12px; overflow: hidden; background: #000; position: relative;">
+                    <iframe src="${embedUrl}" allow="autoplay; fullscreen" 
+                      style="position: absolute; top: 0; left: 0; width: 200%; height: 200%; transform: scale(0.5); transform-origin: top left; border: none;">
+                    </iframe>
                   </div>
                 `;
               } else {
                 videoPreview.innerHTML = `<div style="padding: 10px; color: #ff3b30; text-align: center;">Не удалось распознать ссылку Google Drive</div>`;
               }
             } else {
-
-              // Если ссылка прямая (на всякий случай)
+              // Прямая ссылка (на всякий случай)
               videoPreview.innerHTML = `
-                <video controls playsinline style="width: 100%; height: 550px; object-fit: cover; border-radius: 12px; background: #000;">
+                <video controls playsinline style="width: 100%; height: 500px; object-fit: cover; border-radius: 12px; background: #000;">
                   <source src="${videoUrl}">
                 </video>
               `;
             }
           } else {
-            // Если ссылки нет — вообще ничего не показываем
+            // Ссылки нет - прячем блок
             videoPreview.innerHTML = '';
             videoPreview.style.display = 'none';
           }
