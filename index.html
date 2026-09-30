@@ -1676,58 +1676,74 @@
 
     // --- 2. ИНИЦИАЛИЗАЦИЯ ---
     document.addEventListener("DOMContentLoaded", fetchData);
-
+    // --- ПОДГРУЗКА ИКОНОК (Один раз при старте) ---
+    fetch('icons.svg').then(res => res.text()).then(svg => {
+      document.body.insertAdjacentHTML('afterbegin', svg);
+    }).catch(e => console.log("Иконки не загружены", e));
+    // --- 1. ОФЛАЙН КЭШ ПРИ ЗАПУСКЕ ---
     async function fetchData() {
-      showLoader("Синхронизация данных...");
-      // ПОДГРУЗКА ИКОНОК В ФОНЕ (Скрыто и аккуратно)
-      fetch('icons.svg').then(res => res.text()).then(svg => {
-        document.body.insertAdjacentHTML('afterbegin', svg);
-      }).catch(e => console.log("Иконки не загружены", e));
+      // 1. Мгновенно достаем старые данные из памяти (если есть)
+      const cachedData = localStorage.getItem('appDataCache');
+      if (cachedData) {
+        try {
+          processFetchedData(JSON.parse(cachedData));
+        } catch (e) { console.warn("Кэш поврежден"); }
+      } else {
+        // Лоадер показываем ТОЛЬКО если телефон открыл приложение впервые в жизни
+        showLoader("Загрузка данных...");
+      }
 
+      // 2. Тихо стучимся на сервер за свежими данными в фоне
       try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // Даем Гуглу максимум 10 сек
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         const combinedData = await response.json();
-        window.appData = combinedData;
 
-        if (combinedData.settings) updateInterfaceWithSettings(combinedData.settings);
+        // Сохраняем свежие данные в память телефона
+        localStorage.setItem('appDataCache', JSON.stringify(combinedData));
 
-        tableData_train = (combinedData.table1 || []).map(row => {
-          if (row.Дата) {
-            const d = new Date(row.Дата);
-            row.formattedMonth = !isNaN(d) ? months[d.getMonth()] : "Неизвестно";
-          }
-          return row;
-        });
+        // Обновляем интерфейс незаметно для пользователя
+        processFetchedData(combinedData);
 
-        tableData_buy = (combinedData.table2 || []).map(row => {
-          if (row.Дата) {
-            const d = new Date(row.Дата);
-            row.formattedMonth = !isNaN(d) ? months[d.getMonth()] : "Неизвестно";
-          }
-          return row;
-        });
-
-        tableData_income = (combinedData.table3 || []).map(row => {
-          if (row.Дата) {
-            const d = new Date(row.Дата);
-            row.formattedMonth = !isNaN(d) ? months[d.getMonth()] : "Неизвестно";
-          }
-          row.Категория = row.Категория || row.category || row.Category || 'Не указано';
-          row.Сумма = Number(row.Сумма) || Number(row.Cумма) || Number(row.amount) || Number(row.Amount) || 0;
-          return row;
-        });
-
-
-
-        initFilters();
-        calculate();
-
+        // Проверяем, не накопились ли офлайн-отправки
+        syncOfflineQueue();
       } catch (error) {
-        console.error("Ошибка загрузки:", error);
+        console.warn("Работаем в офлайн-режиме (нет связи с сервером)");
       } finally {
         hideLoader();
       }
     }
+
+    // Вспомогательная функция, чтобы не дублировать код распределения данных
+    function processFetchedData(combinedData) {
+      window.appData = combinedData;
+      if (combinedData.settings) updateInterfaceWithSettings(combinedData.settings);
+
+      tableData_train = (combinedData.table1 || []).map(row => {
+        if (row.Дата) { row.formattedMonth = !isNaN(new Date(row.Дата)) ? months[new Date(row.Дата).getMonth()] : "Неизвестно"; }
+        return row;
+      });
+
+      tableData_buy = (combinedData.table2 || []).map(row => {
+        if (row.Дата) { row.formattedMonth = !isNaN(new Date(row.Дата)) ? months[new Date(row.Дата).getMonth()] : "Неизвестно"; }
+        return row;
+      });
+
+      tableData_income = (combinedData.table3 || []).map(row => {
+        if (row.Дата) { row.formattedMonth = !isNaN(new Date(row.Дата)) ? months[new Date(row.Дата).getMonth()] : "Неизвестно"; }
+        row.Категория = row.Категория || row.category || row.Category || 'Не указано';
+        row.Сумма = Number(row.Сумма) || Number(row.Cумма) || Number(row.amount) || Number(row.Amount) || 0;
+        return row;
+      });
+
+      initFilters();
+      calculate();
+    }
+
     window.studentsDatabase = {};
     function updateInterfaceWithSettings(settings) {
       window.elementsDatabase = settings.elements || [];
@@ -1868,11 +1884,21 @@
 
       // Б) Абонементы
       const subsContainer = document.getElementById("subs-list-container");
+      const subSelect = document.getElementById("sub-select"); // <-- Находим наш пустующий список в форме
+
+      if (subSelect) subSelect.innerHTML = ""; // Очищаем список перед новым заполнением
+
       if (subsContainer) {
         subsContainer.innerHTML = "";
         settings.subs.forEach(item => {
           const [name, price] = item;
           prices.subs[name] = price;
+
+          // НОВАЯ СТРОКА: Добавляем название абонемента в выпадающий список формы!
+          if (subSelect) {
+            subSelect.appendChild(new Option(name, name));
+          }
+
           subsContainer.insertAdjacentHTML('beforeend', `
             <div class="ios-list-item" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px;">
               <span style="font-size: 16px; font-weight: 500; color: var(--text-main);">${name}</span>
@@ -2076,33 +2102,82 @@
     });
 
 
-    // ОТПРАВКА ФОРМ
+
+    // --- 2. ОЧЕРЕДЬ ОТПРАВКИ И УМНЫЙ sendFormData ---
     async function sendFormData(e, url) {
       e.preventDefault();
+
+      // Вытаскиваем данные из формы в массив, чтобы их можно было сохранить в память телефона
       const formData = new FormData(e.target);
       formData.append("source", window.location.href);
+      const dataEntries = Array.from(formData.entries());
 
-      showLoader("Отправка...");
-      try {
-        await fetch(url, {
-          method: "POST",
-          body: formData,
-          mode: "no-cors" // Защита от блокировок CORS (Google редиректов) на мобильных
-        });
-        e.target.reset();
-        showToast();
+      e.target.reset(); // Мгновенно очищаем форму
+      showToast();      // Мгновенно радуем жену плашкой "Сохранено"
 
-        // Даем серверам Гугла 800 миллисекунд на запись, прежде чем скачивать новые данные
-        setTimeout(() => {
-          fetchData();
-        }, 800);
-      } catch (error) {
-        console.error("Ошибка сети:", error);
-        alert("❌ Ошибка отправки. Проверьте интернет.");
-      } finally {
-        hideLoader();
+      if (navigator.onLine) {
+        // Пробуем отправить сразу (в фоне)
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 сек ждем максимум
+
+          await fetch(url, { method: "POST", body: formData, mode: "no-cors", signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          // Если прошло успешно, тихо обновляем базу через 1 сек
+          setTimeout(() => fetchData(), 1000);
+          return;
+        } catch (error) {
+          console.warn("Слабый интернет, кидаем в офлайн-очередь", error);
+        }
+      }
+
+      // Если интернета нет вообще или сервер завис — кидаем в скрытую очередь
+      saveToQueue(url, dataEntries);
+    }
+
+    // Сохранение зависших отправок в локальную базу
+    function saveToQueue(url, dataEntries) {
+      let queue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+      queue.push({ url: url, data: dataEntries, time: Date.now() });
+      localStorage.setItem('offlineQueue', JSON.stringify(queue));
+      console.log("Запись сохранена в телефоне. Ждем интернет...");
+    }
+
+    // Фоновая отправка накопившихся данных при появлении сети
+    async function syncOfflineQueue() {
+      if (!navigator.onLine) return;
+
+      let queue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+      if (queue.length === 0) return;
+
+      console.log(`Отправляем зависшие записи (${queue.length} шт)...`);
+      let failedQueue = [];
+
+      for (let item of queue) {
+        // Восстанавливаем объект FormData из памяти
+        const formData = new FormData();
+        item.data.forEach(([key, val]) => formData.append(key, val));
+
+        try {
+          await fetch(item.url, { method: "POST", body: formData, mode: "no-cors" });
+        } catch (err) {
+          // Если опять не вышло (интернет мигнул) — оставляем на следующий раз
+          failedQueue.push(item);
+        }
+      }
+
+      // Обновляем очередь (оставляем только те, что снова не отправились)
+      localStorage.setItem('offlineQueue', JSON.stringify(failedQueue));
+
+      // Если хоть что-то успешно пробилось на сервер, подтягиваем свежие графики
+      if (queue.length > failedQueue.length) {
+        setTimeout(() => fetchData(), 1500);
       }
     }
+
+    // Даем команду браузеру: "Как только поймаешь сеть - сразу прогоняй очередь!"
+    window.addEventListener('online', syncOfflineQueue);
 
     document.querySelectorAll("form").forEach(form => {
       form.addEventListener("submit", (e) => {
@@ -2196,7 +2271,33 @@
       rebuildSelect("type-filter_buy", validCats, cVal, "Все категории");
       rebuildSelect("payment-filter_buy", validPays, pVal, "Все виды");
     }
+    // --- УМНЫЕ ФИЛЬТРЫ ДЛЯ ДОХОДОВ ---
+    function updateIncomeFilters() {
+      const miVal = document.getElementById("month-filter_income").value;
+      const ciVal = document.getElementById("type-filter_income").value;
 
+      // Объединяем доходы и тренировки для фильтров
+      let combinedIncome = [...tableData_income];
+      tableData_train.forEach(r => {
+        combinedIncome.push({
+          formattedMonth: r.formattedMonth,
+          Категория: 'Тренировки'
+        });
+      });
+
+      // 1. Ищем валидные месяцы
+      const validMonths = new Set(combinedIncome.filter(r =>
+        (ciVal === "all" || String(r.Категория) === ciVal)
+      ).map(r => r.formattedMonth));
+
+      // 2. Ищем валидные категории
+      const validCats = new Set(combinedIncome.filter(r =>
+        (miVal === "all" || r.formattedMonth === miVal)
+      ).map(r => r.Категория || 'Не указано'));
+
+      rebuildSelect("month-filter_income", validMonths, miVal, "Все месяцы", months);
+      rebuildSelect("type-filter_income", validCats, ciVal, "Все категории");
+    }
     // Вспомогательная функция для перестройки выпадающего списка
     function rebuildSelect(id, validSet, currentVal, defaultText, sortOrderArr = null) {
       const select = document.getElementById(id);
@@ -2342,41 +2443,130 @@
       }
       // --- КОНЕЦ БЛОКА ПОКУПОК ---
 
-      // Доходы (включая тренировки)
+      // ==========================================
+      // 3. ДОХОДЫ (С УМНЫМ ФИЛЬТРОМ И ЕДИНОЙ ШКАЛОЙ БАЛАНСА)
+      // ==========================================
+      updateIncomeFilters();
+
       const miVal = document.getElementById("month-filter_income").value;
       const ciVal = document.getElementById("type-filter_income").value;
 
-      const filteredIncome = tableData_income.filter(r =>
+      let combinedIncomeData = [];
+      tableData_income.forEach(r => combinedIncomeData.push({ ...r }));
+
+      tableData_train.forEach(r => {
+        combinedIncomeData.push({
+          formattedMonth: r.formattedMonth,
+          Категория: 'Тренировки',
+          Сумма: Number(r.Cумма) || Number(r.Сумма) || 0,
+          Комментарий: ''
+        });
+      });
+
+      const filteredIncome = combinedIncomeData.filter(r =>
         (miVal === "all" || r.formattedMonth === miVal) &&
         (ciVal === "all" || String(r.Категория) === ciVal)
       );
 
-      let totalIncomeAmount = filteredIncome.reduce((sum, r) => sum + (Number(r.Сумма) || 0), 0);
-
+      let totalIncomeAmount = 0;
       const incomeBreakdown = {};
+      const detailedIncomeBreakdown = {};
+
       filteredIncome.forEach(r => {
         const category = r.Категория || 'Не указано';
-        incomeBreakdown[category] = (incomeBreakdown[category] || 0) + (Number(r.Сумма) || 0);
+        const cost = Number(r.Сумма) || 0;
+        const comment = String(r.Комментарий || r.message || '');
+
+        let subCategory = comment.trim() !== '' ? comment.trim() : 'Без описания';
+
+        totalIncomeAmount += cost;
+        incomeBreakdown[category] = (incomeBreakdown[category] || 0) + cost;
+
+        if (!detailedIncomeBreakdown[category]) detailedIncomeBreakdown[category] = {};
+        detailedIncomeBreakdown[category][subCategory] = (detailedIncomeBreakdown[category][subCategory] || 0) + cost;
       });
 
-      // --- ИНТЕГРАЦИЯ ТРЕНИРОВОК В ДОХОДЫ ---
-      // Если фильтр категорий стоит на "Все категории" или мы специально выбрали "Тренировки":
-      if (ciVal === "all" || ciVal === "Тренировки") {
-        // Берем все тренировки за выбранный месяц
-        const trainIncome = tableData_train
-          .filter(r => miVal === "all" || r.formattedMonth === miVal)
-          .reduce((sum, r) => sum + (Number(r.Cумма) || Number(r.Сумма) || 0), 0);
-
-        if (trainIncome > 0) {
-          totalIncomeAmount += trainIncome; // Плюсуем к общей сумме
-          incomeBreakdown["Тренировки"] = (incomeBreakdown["Тренировки"] || 0) + trainIncome; // Добавляем категорию в шкалу
-        }
-      }
-      // --------------------------------------
-
       document.getElementById("total-amount_income").textContent = totalIncomeAmount.toLocaleString() + " ₪";
-      renderBreakdown("breakdown-income", incomeBreakdown, totalIncomeAmount, "fill-blue");
-    }
+
+      const incomeContainer = document.getElementById("breakdown-income");
+      incomeContainer.innerHTML = '';
+
+      if (totalIncomeAmount > 0 && Object.keys(incomeBreakdown).length > 0) {
+        let incHtml = `<div class="breakdown-title">Расширенная детализация доходов:</div>`;
+        const sortedCats = Object.entries(incomeBreakdown).sort((a, b) => b[1] - a[1]);
+
+        sortedCats.forEach(([cat, val]) => {
+          const percent = Math.round((val / totalIncomeAmount) * 100);
+          incHtml += `
+            <div class="breakdown-item" style="margin-top: 15px;">
+              <span style="font-size: 16px;"><b>${cat}</b></span>
+              <span style="font-size: 16px;"><b>${val.toLocaleString()} ₪</b> (${percent}%)</span>
+            </div>
+            <div class="breakdown-bar-bg" style="margin-bottom: 8px;">
+              <div class="breakdown-bar-fill fill-blue" style="width: ${percent}%;"></div>
+            </div>
+          `;
+
+          const sortedSubs = Object.entries(detailedIncomeBreakdown[cat]).sort((a, b) => b[1] - a[1]);
+          if (!(sortedSubs.length === 1 && sortedSubs[0][0] === 'Без описания')) {
+            sortedSubs.forEach(([sub, subVal]) => {
+              incHtml += `
+                <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-left: 10px; margin-bottom: 6px; border-bottom: 1px dashed #e5e5ea; padding-bottom: 4px;">
+                  <span style="flex: 1; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">↳ ${sub}</span>
+                  <span style="font-weight: 500;">${subVal.toLocaleString()} ₪</span>
+                </div>
+              `;
+            });
+          }
+        });
+        incomeContainer.innerHTML = incHtml;
+      }
+
+      // ==========================================
+      // --- НАГЛЯДНАЯ ШКАЛА БАЛАНСА ---
+      // ==========================================
+      const expensesForPeriod = tableData_buy.filter(r => (miVal === "all" || r.formattedMonth === miVal))
+        .reduce((sum, r) => sum + (Number(r.Cумма) || Number(r.Сумма) || Number(r.rating) || 0), 0);
+
+      const incomeForPeriod = combinedIncomeData.filter(r => (miVal === "all" || r.formattedMonth === miVal))
+        .reduce((sum, r) => sum + (Number(r.Сумма) || 0), 0);
+
+      if (incomeForPeriod > 0 || expensesForPeriod > 0) {
+        const maxVal = Math.max(incomeForPeriod, expensesForPeriod);
+        const incPercent = maxVal === 0 ? 0 : Math.round((incomeForPeriod / maxVal) * 100);
+        const expPercent = maxVal === 0 ? 0 : Math.round((expensesForPeriod / maxVal) * 100);
+
+        const balanceVal = incomeForPeriod - expensesForPeriod;
+        const isPositive = balanceVal >= 0;
+        const sign = balanceVal > 0 ? '+' : '';
+
+        const expColor = expensesForPeriod > incomeForPeriod
+          ? 'linear-gradient(90deg, #ff3b30, #ff453a)'
+          : 'linear-gradient(90deg, #ff9500, #ffcc00)';
+
+        let balanceHtml = `
+          <div class="breakdown-title" style="margin-top: 35px; border-top: 2px dashed #d1d1d6; padding-top: 20px;">
+            Сводка за период:
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+            <span style="color: #34c759;">Доход: ${incomeForPeriod.toLocaleString()} ₪</span>
+            <span style="color: ${!isPositive ? '#ff3b30' : '#ff9500'};">Расход: ${expensesForPeriod.toLocaleString()} ₪</span>
+          </div>
+
+          <div style="position: relative; height: 16px; border-radius: 8px; background: #e5e5ea; margin-bottom: 15px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+            <div style="position: absolute; top: 0; left: 0; height: 100%; width: ${incPercent}%; background: linear-gradient(90deg, #34c759, #30d158); border-radius: 8px;"></div>
+            <div style="position: absolute; top: 0; left: 0; height: 100%; width: ${expPercent}%; background: ${expColor}; border-radius: 8px; opacity: 0.9;"></div>
+          </div>
+          
+          <div style="text-align: center; font-size: 17px; font-weight: bold; color: ${isPositive ? '#34c759' : '#ff3b30'};">
+            Баланс: ${sign}${balanceVal.toLocaleString()} ₪
+          </div>
+        `;
+
+        incomeContainer.insertAdjacentHTML('beforeend', balanceHtml);
+      }
+    } // <-- Это должна быть последняя закрывающая скобка функции calculate()
 
     // --- 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (UX) ---
     const showLoader = (text) => { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').classList.add('active'); };
