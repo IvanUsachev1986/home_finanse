@@ -1,11 +1,13 @@
-const CACHE_NAME = 'finance-app-cache-v3'; // Изменил версию кэша, чтобы он точно обновился
+const CACHE_NAME = 'finance-app-cache-v4'; // Изменил версию кэша, чтобы он точно обновился
 
 // Точка слэш (./) говорит браузеру: ищи файлы прямо в этой же папке!
 const urlsToCache = [
-  './', 
-  './index.html', 
-  './manifest.json',
-  './icon.png'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './icons.svg',
+  // ... здесь могут быть твои картинки из manifest.json
 ];
 
 // 1. Установка Service Worker и кэширование файлов
