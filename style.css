@@ -1,0 +1,976 @@
+/* Исправляем цвет иконок и текста в нижнем меню для темной темы */
+nav {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-top-color: #c6c6c8 !important;
+}
+
+.nav-btn {
+    color: #8e8e93 !important;
+    /* Цвет неактивных элементов в темной теме */
+}
+
+.nav-btn.active {
+    color: var(--ios-blue) !important;
+}
+
+/* Принудительно задаем цвет обводки для всех иконок в навигации */
+.nav-btn .nav-icon {
+    stroke: currentColor !important;
+}
+
+/* Если иконка Доходов использует заливку (fill), а не обводку (stroke) */
+.nav-btn use[href="#icon-income"] {
+    fill: currentColor !important;
+}
+
+.ios-list-title {
+    text-align: center;
+    color: #000;
+    font-size: large;
+}
+
+:root {
+    --ios-bg: #f2f2f7;
+    --ios-blue: #007aff;
+    --ios-blue-active: #0051a8;
+    --ios-gray: #e5e5ea;
+    --text-main: #1c1c1e;
+    --text-muted: #8e8e93;
+}
+
+/* Гарантируем, что все иконки в нижнем меню берут цвет текста кнопки */
+.nav-btn .nav-icon {
+    stroke: currentColor !important;
+    fill: none;
+}
+
+/* Специально для иконки доходов, если она использует fill */
+.nav-btn use[href="#icon-income"],
+.nav-btn svg use[href*="income"] {
+    fill: currentColor !important;
+    stroke: none !important;
+}
+
+/* Цвет неактивных иконок в темной теме */
+.nav-btn {
+    color: #8e8e93 !important;
+}
+
+/* Цвет активной иконки в темной теме */
+.nav-btn.active {
+    color: var(--ios-blue) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Принудительно красим карточки, блоки аккордеона и списки в настройках в темно-серый */
+    .card,
+    .settings-item,
+    .accordion-item,
+    .setting-block,
+    .info-block {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+
+    /* Текст и иконки внутри этих блоков */
+    .card *,
+    .settings-item *,
+    .accordion-item *,
+    .setting-block * {
+        color: #ffffff !important;
+    }
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--ios-bg);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none;
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+/* --- ВЕРХНЕЕ МЕНЮ --- */
+/* --- ВЕРХНЕЕ МЕНЮ (10% - 80% - 10%) --- */
+.top-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 85px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 20px 20px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: env(safe-area-inset-top);
+    box-sizing: border-box;
+}
+
+.header-block {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.block-side {
+    width: 15%;
+    justify-content: center;
+    position: relative;
+}
+
+.block-center {
+    width: 70%;
+    justify-content: center;
+}
+
+.header-btn {
+    background: transparent;
+    border: none;
+    color: var(--ios-blue);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.header-btn:active {
+    opacity: 0.5;
+}
+
+.header-title-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.3px;
+}
+
+.action-icon {
+    width: 26px;
+    height: 26px;
+    stroke: currentColor;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* --- ВЫПАДАЮЩЕЕ МЕНЮ --- */
+.dropdown-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+}
+
+.dropdown-overlay.active {
+    display: block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 60px;
+    right: 15px;
+    width: 200px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+    pointer-events: none;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    z-index: 1000;
+}
+
+.dropdown-menu.active {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item .icon {
+    width: 22px;
+    height: 22px;
+    stroke: var(--text-main);
+}
+
+.dropdown-item.active-item .icon {
+    stroke: var(--ios-blue);
+}
+
+.dropdown-item.active-item {
+    color: var(--ios-blue);
+}
+
+/* Лоадер */
+#global-loader {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+#global-loader.active {
+    display: flex;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--ios-gray);
+    border-top: 4px solid var(--ios-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+/* Секции */
+.section {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 0 15px;
+}
+
+.section.active {
+    display: block;
+    opacity: 1;
+    animation: fadeIn 0.4s ease;
+}
+
+h2 {
+    display: none;
+}
+
+/* Скрыто, так как есть заголовок в шапке */
+
+/* Формы */
+.ios-form {
+    max-width: 500px;
+    margin: 0 auto 20px;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    margin-left: 4px;
+}
+
+/* Стили для кастомных чекбоксов направлений */
+.dir-label {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.dir-label input {
+    display: none;
+}
+
+.dir-icon {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+}
+
+.dir-label input:checked + .dir-icon,
+.dir-label input:checked + span {
+    fill: #ff2d55;
+    color: #ff2d55;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.dir-label:has(input:checked) {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+select,
+input,
+textarea,
+output {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid #d1d1d6;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    color: var(--text-main);
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--ios-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.section_train {
+    display: none;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #e5e5ea;
+}
+
+.section_train.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.stepper-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.stepper-container input {
+    text-align: center;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.stepper-btn {
+    width: 54px;
+    height: 54px;
+    background: var(--ios-gray);
+    border: none;
+    border-radius: 14px;
+    color: var(--ios-blue);
+    font-size: 26px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.stepper-btn:active {
+    background: #d1d1d6;
+    transform: scale(0.95);
+}
+
+.apple-button {
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--ios-blue);
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    margin-top: 15px;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    transition:
+        transform 0.1s,
+        box-shadow 0.1s;
+}
+
+.apple-button:active {
+    background-color: var(--ios-blue-active);
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+}
+
+.toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #f9f9f9;
+    border-radius: 14px;
+    border: 1px solid #d1d1d6;
+}
+
+.toggle-label-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 51px;
+    height: 31px;
+    margin: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e5ea;
+    transition: 0.3s;
+    border-radius: 31px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 27px;
+    width: 27px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: #34c759;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* Нижняя навигация */
+nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 85px;
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px 20px 0 0;
+    z-index: 999;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    flex: 1;
+    /* Ровное распределение места, ничего не съезжает */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.nav-icon {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 8px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Пружинистая анимация */
+}
+
+.nav-btn span {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.nav-btn.active {
+    color: var(--ios-blue);
+}
+
+.nav-btn.active .nav-icon {
+    transform: scale(1.15);
+}
+
+#toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: rgba(52, 199, 89, 0.95);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 20px rgba(52, 199, 89, 0.3);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 10001;
+}
+
+#toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Аналитика */
+.breakdown-container {
+    margin-top: 25px;
+}
+
+.breakdown-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    border-top: 1px solid var(--ios-gray);
+    padding-top: 20px;
+    letter-spacing: -0.3px;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.breakdown-bar-bg {
+    background: var(--ios-gray);
+    height: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.breakdown-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.fill-green {
+    background: linear-gradient(90deg, #34c759, #30d158);
+    box-shadow: 0 0 8px rgba(52, 199, 89, 0.4);
+}
+
+.fill-red {
+    background: linear-gradient(90deg, #ff3b30, #ff453a);
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.4);
+}
+
+.fill-blue {
+    background: linear-gradient(90deg, #007aff, #32ade6);
+    box-shadow: 0 0 8px rgba(0, 122, 255, 0.4);
+}
+
+.total-highlight {
+    font-size: 1.5em !important;
+    border: none;
+    padding: 0;
+    background: transparent !important;
+}
+
+/* --- АККОРДЕОНЫ (РАСКРЫВАЮЩИЕСЯ СПИСКИ) --- */
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: var(--card-bg, #ffffff);
+    /* Автоматически меняет фон */
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-main);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: background 0.2s;
+}
+
+.accordion-header:active {
+    background: var(--card-active, rgba(0, 0, 0, 0.05));
+}
+
+.accordion-icon {
+    width: 22px;
+    height: 22px;
+    stroke: var(--text-secondary, #8e8e93);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.accordion-header.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    display: none;
+    padding: 0 4px 16px 4px;
+    animation: fadeIn 0.3s ease;
+    color: var(--text-main);
+}
+
+.accordion-content.active {
+    display: block;
+}
+
+/* --- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ УЧЕНИЦЫ --- */
+.student-modal {
+    position: fixed;
+    inset: 0;
+    background: rgb(255, 253, 253);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.student-modal.active {
+    display: flex;
+}
+
+.student-modal-content {
+    background: var(--menu-bg);
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Исправление цветов в модалке */
+.student-modal-content h3 {
+    color: var(--text-main) !important;
+}
+
+.student-modal-content label {
+    color: var(--text-muted) !important;
+}
+
+/* Кнопки "Отмена" и "Сохранить" одного размера */
+.modal-buttons-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.modal-buttons-row .apple-button {
+    flex: 1;
+    margin-top: 0;
+}
+
+/* Дизайн списка учениц (Аватарки) */
+.student-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--ios-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--ios-blue);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.student-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.student-name-large {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* iOS Переключатель (Toggle) */
+.ios-toggle {
+    position: relative;
+    width: 50px;
+    height: 30px;
+    -webkit-appearance: none;
+    background: #e5e5ea;
+    border-radius: 15px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+}
+
+.ios-toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ios-toggle:checked {
+    background: #34c759;
+}
+
+.ios-toggle:checked::after {
+    transform: translateX(20px);
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Стили для всплывающего меню выбора разделов */
+    .dropdown-menu,
+    .menu-popup,
+    .popover,
+    .menu-box {
+        background-color: #2c2c2e !important;
+        color: #ffffff !important;
+        border-color: #38383a !important;
+    }
+
+    .dropdown-menu button,
+    .menu-popup a,
+    .menu-item {
+        color: #ffffff !important;
+    }
+
+    .dropdown-menu button:hover,
+    .menu-popup a:hover {
+        background-color: #3a3a3c !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .accordion-header {
+        background: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+
+    .accordion-header:active {
+        background: #2c2c2e !important;
+    }
+
+    .accordion-content {
+        color: #ffffff !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-main: #000000;
+        --card-bg: #1c1c1e;
+        --text-main: #ffffff;
+        --text-secondary: #8e8e93;
+        --border-color: #38383a;
+    }
+
+    /* Общий фон и карточки в темной теме */
+    body {
+        background-color: var(--bg-main) !important;
+        color: var(--text-main) !important;
+    }
+
+    /* Поля ввода и модальные окна */
+    input,
+    select,
+    textarea {
+        background-color: #2c2c2e !important;
+        color: #ffffff !important;
+        border-color: var(--border-color) !important;
+    }
+
+    #progress-modal {
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    .progress-modal-content,
+    #progress-modal .student-modal-content {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+
+    .ios-form {
+        background: #1c1c1e !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .ios-form .accordion-header {
+        background: var(--ios-bg);
+        border: 1px solid #d1d1d6;
+    }
+
+    /* Оформление полей ввода цен */
+    .ios-list-item input[type="number"]:focus {
+        outline: none;
+        color: var(--ios-blue-active);
+    }
+
+    .toggle-wrapper {
+        background: #2c2c2e !important;
+        border-color: #38383a !important;
+    }
+
+    nav {
+        background: rgba(28, 28, 30, 0.92) !important;
+        border-top-color: #38383a !important;
+    }
+
+    .nav-btn.active > .nav-icon {
+        stroke: var(--ios-blue) !important;
+    }
+
+    .breakdown-bar-bg {
+        background: #2c2c2e !important;
+    }
+
+    .top-header {
+        background: rgba(28, 28, 30, 0.92) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .accordion-content,
+    .form-container,
+    .settings-content,
+    .card {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+
+    /* Перекрашиваем все внутренние контейнеры карточек и форм в темный цвет */
+    .accordion-content > div,
+    .student-content,
+    .form-box,
+    .settings-card {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+
+    #student-form,
+    .student-modal-content {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+
+    #student-modal {
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    .student-modal-content,
+    #student-form {
+        background-color: #1c1c1e !important;
+        color: #ffffff !important;
+    }
+}
